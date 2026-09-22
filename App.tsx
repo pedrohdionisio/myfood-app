@@ -30,7 +30,7 @@ export default function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<SafeAreaProvider>
-				<GestureHandlerRootView className='flex-1'>
+				<GestureHandlerRootView>
 					<BottomSheetModalProvider>
 						<StatusBar style='dark' />
 

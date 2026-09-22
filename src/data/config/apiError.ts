@@ -20,6 +20,7 @@ const FALLBACK_MESSAGE = 'Não foi possível concluir a ação. Tente novamente.
 interface IApiErrorBody {
 	code?: string;
 	message?: string;
+	details?: unknown;
 	requestId?: string;
 }
 
@@ -51,4 +52,20 @@ export function getApiErrorMessage(error: unknown): string {
 	}
 
 	return error.response.data?.message ?? FALLBACK_MESSAGE;
+}
+
+export function getApiErrorReason(error: unknown): string | null {
+	if (!isAxiosError<IApiErrorBody>(error)) {
+		return null;
+	}
+
+	const details = error.response?.data?.details;
+
+	if (typeof details !== 'object' || details === null || !('reason' in details)) {
+		return null;
+	}
+
+	const { reason } = details;
+
+	return typeof reason === 'string' ? reason : null;
 }

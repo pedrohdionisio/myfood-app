@@ -1,0 +1,3 @@
+export const ADDRESS_QUERY_KEYS = {
+	ADDRESS_BY_ZIP_CODE: 'ADDRESS_BY_ZIP_CODE'
+} as const;

@@ -104,6 +104,37 @@ Dentro do componente, o `fill` vem de `COLORS`, não do hex do arquivo: o vermel
 exatamente `COLORS.brand.DEFAULT`, e o `black` das letras "MY" virou `COLORS.gray[900]`. SVG colado
 direto no JSX de um componente continua proibido — o lugar é `shared/assets/svgs/`.
 
+## `className` só funciona em componente registrado
+
+O NativeWind converte `className` em `style` apenas nos componentes que passaram por `cssInterop`.
+A lista embutida é a do React Native (`View`, `Text`, `Pressable`, `TextInput`, `Image`,
+`ActivityIndicator`, `ScrollView`, `FlatList`, `KeyboardAvoidingView`…) mais o `SafeAreaView`.
+
+**Componente de biblioteca não está nessa lista.** `className` nele não vira estilo, não gera erro
+de tipo e não reclama em runtime — o componente simplesmente renderiza sem estilo. Foi o que
+aconteceria com o `Image` do `expo-image`: a foto sairia sem tamanho, invisível.
+
+Registre uma vez, num componente nosso:
+
+```tsx
+const StyledImage = cssInterop(Image, { className: 'style' });
+```
+
+`presentation/components/AppImage/` é o molde — toda imagem do app passa por ele, nunca pelo
+`expo-image` direto.
+
+Antes de escrever `className` num componente que não é do React Native, confira se ele está
+registrado. Dois casos já resolvidos no projeto:
+
+- `Image` do `expo-image` → `AppImage`, com `cssInterop`.
+- `GestureHandlerRootView` no `App.tsx` → **sem** `className`. Ele já aplica `flex: 1` quando
+  nenhum `style` chega, então o `className='flex-1'` que estava ali não fazia nada e só parecia
+  fazer.
+
+O `Animated.View` do React Native também não é registrado — o NativeWind anima por conta própria,
+via reanimated. Por isso o `Skeleton` é estático: um pulse escrito às cegas pode sair invisível, e
+essa decisão pede alguém olhando a tela.
+
 ## Classe precisa ser literal
 
 O Tailwind escaneia o texto do arquivo. Classe montada em runtime não gera CSS:

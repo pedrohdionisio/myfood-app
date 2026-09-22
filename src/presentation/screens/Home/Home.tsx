@@ -1,27 +1,52 @@
 import { AppText } from 'presentation/components/AppText/AppText';
-import { Button } from 'presentation/components/Button/Button';
-import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
-import { View } from 'react-native';
+import { RestaurantCard } from 'presentation/components/RestaurantCard/RestaurantCard';
+import { ActivityIndicator, FlatList, View } from 'react-native';
+import { COLORS } from 'shared/constants/colors';
+import { RestaurantsPlaceholder } from './components/RestaurantsPlaceholder/RestaurantsPlaceholder';
 import { useHomeController } from './useHomeController';
 
 export function Home() {
-	const { customerName, handleSignOut } = useHomeController();
+	const {
+		restaurants,
+		contentPadding,
+		listState,
+		errorMessage,
+		isFetchingMoreRestaurants,
+		handleRetry,
+		handleGoToAddressForm,
+		handleEndReached
+	} = useHomeController();
 
 	return (
-		<ScreenLayout className='justify-between'>
-			<View className='gap-2'>
-				<AppText color='brand' size='eyebrow' weight='medium'>
-					MyFood
-				</AppText>
-
-				<AppText color='strong' size='titleLg' weight='semibold'>
-					Olá, {customerName}
-				</AppText>
-
-				<AppText color='muted'>Sua sessão está ativa e persistida no device.</AppText>
-			</View>
-
-			<Button onPress={handleSignOut} title='Sair' variant='outline' />
-		</ScreenLayout>
+		<View className='flex-1 bg-gray-50'>
+			<FlatList
+				ListEmptyComponent={
+					<RestaurantsPlaceholder
+						errorMessage={errorMessage}
+						listState={listState}
+						onAddAddress={handleGoToAddressForm}
+						onRetry={handleRetry}
+					/>
+				}
+				ListFooterComponent={
+					isFetchingMoreRestaurants ? (
+						<ActivityIndicator className='py-4' color={COLORS.brand.DEFAULT} />
+					) : null
+				}
+				ListHeaderComponent={
+					<AppText className='mb-4' color='strong' size='titleMd' weight='semibold'>
+						Restaurantes
+					</AppText>
+				}
+				contentContainerClassName='gap-3 px-6'
+				contentContainerStyle={contentPadding}
+				data={restaurants}
+				keyExtractor={(restaurant) => restaurant.id}
+				onEndReached={handleEndReached}
+				onEndReachedThreshold={0.4}
+				renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+				showsVerticalScrollIndicator={false}
+			/>
+		</View>
 	);
 }
