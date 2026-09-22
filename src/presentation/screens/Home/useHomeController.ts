@@ -7,6 +7,7 @@ import { useRef, useState } from 'react';
 import { useDebouncedValue } from 'shared/hooks/useDebouncedValue';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type {
+	IHandleOpenRestaurantParams,
 	IHandleSelectCuisineParams,
 	IHandleToggleIncludeClosedParams,
 	RestaurantsListState
@@ -80,6 +81,10 @@ export function useHomeController() {
 		refetchRestaurants();
 	}
 
+	function handleOpenRestaurant({ restaurantId, slug }: IHandleOpenRestaurantParams) {
+		navigation.navigate('Restaurant', { restaurantId, slug });
+	}
+
 	function handleGoToAddressForm() {
 		navigation.navigate('AddressForm', {});
 	}
@@ -106,6 +111,7 @@ export function useHomeController() {
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
 		handleOpenFilters,
+		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,
 		handleEndReached

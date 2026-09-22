@@ -1,19 +1,28 @@
 import { ClockIcon, StarIcon } from 'lucide-react-native';
 import { AppImage } from 'presentation/components/AppImage/AppImage';
 import { AppText } from 'presentation/components/AppText/AppText';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { formatPrice } from 'shared/utils/formatPrice';
+import { toCuisineLabel } from 'shared/utils/toCuisineLabel';
 import type { IRestaurantCardProps } from './RestaurantCardTypes';
-import { toCuisineLabel } from './utils/toCuisineLabel';
 
-export function RestaurantCard({ restaurant }: IRestaurantCardProps) {
+export function RestaurantCard({ restaurant, onPress }: IRestaurantCardProps) {
 	const isClosed = !restaurant.isOpenNow || !restaurant.isAcceptingOrders;
 	const cuisineLabel = toCuisineLabel(restaurant.cuisines);
 
 	return (
-		<View className='flex-row items-center gap-4 rounded-xl border border-gray-200 bg-white p-4'>
-			<AppImage className='h-16 w-16 rounded-lg bg-gray-100' source={restaurant.logoUrls?.sm} />
+		<Pressable
+			accessibilityLabel={`Abrir ${restaurant.tradeName}`}
+			accessibilityRole='button'
+			className='flex-row items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 active:opacity-80'
+			onPress={onPress}
+		>
+			<AppImage
+				className='h-16 w-16 rounded-lg bg-gray-100'
+				fallbackIconSize={20}
+				source={restaurant.logoUrls?.sm}
+			/>
 
 			<View className='flex-1 gap-1'>
 				<AppText color='strong' numberOfLines={1} size='bodyMd' weight='semibold'>
@@ -58,6 +67,6 @@ export function RestaurantCard({ restaurant }: IRestaurantCardProps) {
 					</AppText>
 				</View>
 			)}
-		</View>
+		</Pressable>
 	);
 }

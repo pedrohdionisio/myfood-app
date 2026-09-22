@@ -7,3 +7,8 @@ export interface IHandleSelectCuisineParams {
 export interface IHandleToggleIncludeClosedParams {
 	includeClosed: boolean;
 }
+
+export interface IHandleOpenRestaurantParams {
+	restaurantId: string;
+	slug: string;
+}

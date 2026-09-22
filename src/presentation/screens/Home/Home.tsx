@@ -23,6 +23,7 @@ export function Home() {
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
 		handleOpenFilters,
+		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,
 		handleEndReached
@@ -62,7 +63,12 @@ export function Home() {
 				keyboardShouldPersistTaps='handled'
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.4}
-				renderItem={({ item }) => <RestaurantCard restaurant={item} />}
+				renderItem={({ item }) => (
+					<RestaurantCard
+						onPress={() => handleOpenRestaurant({ restaurantId: item.id, slug: item.slug })}
+						restaurant={item}
+					/>
+				)}
 				showsVerticalScrollIndicator={false}
 			/>
 

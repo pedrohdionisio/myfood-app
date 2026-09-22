@@ -1,0 +1,18 @@
+import { AppText } from 'presentation/components/AppText/AppText';
+import { View } from 'react-native';
+import { MenuProductRow } from '../MenuProductRow/MenuProductRow';
+import type { IMenuCategorySectionProps } from './MenuCategorySectionTypes';
+
+export function MenuCategorySection({ category }: IMenuCategorySectionProps) {
+	return (
+		<View className='px-6'>
+			<AppText color='strong' size='titleSm' weight='semibold'>
+				{category.name}
+			</AppText>
+
+			{category.products.map((product) => (
+				<MenuProductRow key={product.id} product={product} />
+			))}
+		</View>
+	);
+}

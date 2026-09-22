@@ -144,7 +144,7 @@ Sessão do cliente, endereços e descoberta de restaurantes prontos. Verificado 
 — o app **nunca foi executado**.
 
 Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp) ou `AppStack` pela sessão. O `AppStack`
-tem `AppTabNavigator` (Início · Conta) mais `Addresses` e `AddressForm` empilhados. A tab bar é a
+tem `AppTabNavigator` (Início · Conta) mais `Restaurant`, `Addresses` e `AddressForm` empilhados. A tab bar é a
 nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
 
 Não existe aba de busca: o campo mora no cabeçalho da `Home`, ao lado do botão de filtros, com as
@@ -167,8 +167,8 @@ O que existe e serve de molde:
   `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
-  lista paginada com os estados), `Account`, `Addresses`, `AddressForm` (formulário com
-  auto-preenchimento por CEP)
+  lista paginada com os estados), `Restaurant` (banner, logo, cardápio por categoria), `Account`,
+  `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP)
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
@@ -183,6 +183,16 @@ Esses três parâmetros foram adicionados à `myfood-api` para esta tela — nã
 `ListRestaurantsUseCase` de lá lê a cidade inteira antes de paginar, com teto de
 `MAX_CITY_ROWS = 500`, porque `isOpenNow` sai do `isOpenAt`, que é regra de domínio em TypeScript.
 Ao mexer em qualquer um dos lados, leia o comentário que está naquele arquivo.
+
+### A tela do restaurante precisa de id e slug
+
+`GET /discovery/restaurants/:slug` responde pelo **slug**; `GET /discovery/restaurants/:id/menu`
+responde pelo **id**. A rota `Restaurant` carrega os dois como param porque o card da Home já tem
+ambos — assim as duas queries disparam em paralelo, em vez de a segunda esperar a primeira.
+
+O cardápio é uma `FlatList` de **categorias**; os produtos de cada uma são `map` dentro da seção,
+não uma segunda lista. Categoria tem punhado de itens, e lista virtualizada dentro de lista
+virtualizada é o que o React Native manda evitar.
 
 **`q` casa só com o nome do restaurante.** Buscar por prato continua sendo `GET /discovery/search`,
 que a API mantém e o app não consome mais.
@@ -223,6 +233,8 @@ O que **não** existe ainda, e por isso não deve ser referenciado como se exist
 - **Não dá para buscar por prato.** A aba de busca saiu e com ela o consumo de `/discovery/search`,
   que era o único jeito de achar restaurante pelo que ele vende. Voltar exige `q` casar com produto
   na API, ou uma tela dedicada.
+- **O cardápio não é clicável.** `MenuProductRow` mostra o item e não abre nada: não existe tela de
+  produto, complementos nem carrinho. É a emenda da próxima fatia.
 - **O filtro só tem um item.** A sheet de filtros existe com `Mostrar fechados` apenas; ela foi
   desenhada para receber mais (faixa de preço, entrega grátis, avaliação) quando a API tiver.
 - **A lista de restaurantes ignora `addressId`.** A API aceita o parâmetro e cai no primeiro

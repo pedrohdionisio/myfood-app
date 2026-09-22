@@ -10,6 +10,7 @@ export type AppTabRoutesParamList = {
 
 export type AppRoutesParamList = {
 	Tabs: undefined;
+	Restaurant: { restaurantId: string; slug: string };
 	Addresses: undefined;
 	AddressForm: { addressId?: string };
 };
