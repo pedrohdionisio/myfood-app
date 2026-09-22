@@ -144,7 +144,8 @@ Sessão do cliente, endereços e descoberta de restaurantes prontos. Verificado 
 — o app **nunca foi executado**.
 
 Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp) ou `AppStack` pela sessão. O `AppStack`
-tem `AppTabNavigator` (Início · Busca · Conta) mais `Addresses` e `AddressForm` empilhados.
+tem `AppTabNavigator` (Início · Busca · Conta) mais `Addresses` e `AddressForm` empilhados. A tab
+bar é a nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
 
 O que existe e serve de molde:
 
@@ -159,7 +160,7 @@ O que existe e serve de molde:
 - `data/modules/address/` — consulta de CEP no ViaCEP, com mapper; espelha o módulo homônimo do
   dashboard
 - `presentation/components/` — `AppText`, `AppImage`, `Button`, `Input`, `Skeleton`, `EmptyState`,
-  `ErrorState`, `ScreenHeader`, `RestaurantCard`
+  `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (lista paginada com os
   três estados), `Search` (busca com debounce), `Account`, `Addresses`, `AddressForm` (formulário
@@ -167,6 +168,14 @@ O que existe e serve de molde:
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
+
+### A tab bar flutua, então o respiro inferior vem dela
+
+Sendo `absolute`, a `CustomTabBar` não ocupa espaço de layout — o conteúdo rola por baixo. Ela
+reporta a própria altura no `onLayout` (`BottomTabBarHeightCallbackContext`) e o
+`useScreenPadding()` lê essa altura do `BottomTabBarHeightContext` para usar como `paddingBottom`.
+Fora das abas o contexto é `undefined` e o hook cai no inset de safe area, então o mesmo hook serve
+tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 
 ### Tela com lista não usa ScreenLayout
 
@@ -187,6 +196,8 @@ O que **não** existe ainda, e por isso não deve ser referenciado como se exist
 ### Pendências conhecidas
 
 - **Login obrigatório na entrada, por decisão.** Trocar para o modelo iFood é mudar `Navigation`.
+- **Card depende de borda, não de contraste.** `bg-background` (`#FEFCFC`) e o `bg-white` do card
+  diferem em 3 valores por canal; quem separa os dois é a `border-gray-200`.
 - **`Skeleton` não pulsa.** É um bloco cinza estático de propósito — ver a regra de design system.
 - **Falha de rede no boot desloga visualmente.** `restoreSession` faz `getMe().catch(() => null)`.
 - **Não há teste automatizado.** O interceptor de 401 nunca foi exercitado.

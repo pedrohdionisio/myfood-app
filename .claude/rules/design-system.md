@@ -43,10 +43,26 @@ hifenizada (`text-title-lg`).
 Fonte única: `tailwind.config.js`, espelhado em `shared/constants/colors.ts`.
 
 ```
+background #FEFCFC
 brand #D73035 · brand-hover #BF222A · brand-strong #A7131F · brand-subtle #FEEBE9
 destructive #8A1114 · success #257D41 · warning #9B6700 · info #046CB9
 gray 50…950
 ```
+
+### `background` é token semântico, e é a única divergência do dashboard
+
+Fundo de tela é `bg-background`, **nunca** `bg-gray-50`. O dashboard modela igual: lá o
+`--background` é um token próprio que aponta para o `gray-50`; aqui ele aponta para um off-white
+um pouco mais claro (`#FEFCFC` contra `#FDF9F9`), a pedido do Pedro.
+
+A escala de cinza em si continua idêntica à do dashboard — a divergência está contida nesse token,
+que é exatamente o motivo de ele existir. Mexer no `gray-50` para clarear o fundo teria movido
+junto borda, superfície e texto dos dois repositórios.
+
+**Consequência a vigiar:** card é `bg-white` (`#FFFFFF`) sobre esse fundo, então a diferença entre
+card e fundo é de 3 valores por canal — quase nada. Quem separa o card hoje é a
+`border-gray-200`, não o contraste de superfície. Se um card aparecer sem borda, ele vai sumir no
+fundo.
 
 - Em JSX: `className='bg-brand'`, `text-gray-500`, `border-gray-200`.
 - Em prop que exige valor (ícone do lucide, `placeholderTextColor`, `shadowColor`):
@@ -159,8 +175,35 @@ O Biome ordena sozinho (`useSortedClasses`) — não brigue com a ordem dele, ro
 
 ## Sem StyleSheet
 
-Estilo é `className`. `style={{}}` só para valor calculado em runtime de verdade — inset de safe
-area, largura de barra de progresso. `StyleSheet.create` não entra no projeto.
+Estilo é `className`. `StyleSheet.create` não entra no projeto. `style` tem exatamente dois usos
+permitidos:
+
+1. **Valor calculado em runtime** — inset de safe area, largura de barra de progresso.
+2. **Sombra**, como constante de módulo (`BAR_SHADOW` no `CustomTabBar`).
+
+O segundo merece explicação, porque não é falta de suporte: o NativeWind **tem** plugin de sombra
+(`nativewind/dist/tailwind/shadows.js`) e deriva o `elevation` do Android a partir do `boxShadow`.
+A sombra explícita ficou porque é a mesma dos apps irmãos, com valores já escolhidos olhando
+device, e ninguém conseguiu comparar as duas no aparelho ainda. Virar token `boxShadow` no
+`tailwind.config.js` é a evolução natural — mas é mudança que se faz com a tela na frente.
+
+## Tab bar
+
+A tab bar é nossa (`presentation/components/CustomTabBar/`), passada no `tabBar` do
+`Tab.Navigator` — não é a barra padrão com `tabBarStyle`. Ela é uma pílula branca flutuante:
+`absolute` no rodapé, `rounded-full`, ícone mais um ponto de 4px que só aparece na aba ativa.
+Sem rótulo e **sem botão central elevado** — o slot do meio dos apps irmãos não existe aqui.
+
+Por ser `absolute`, ela não ocupa espaço de layout: o conteúdo passa **por baixo** dela. Duas
+consequências que andam juntas:
+
+- o `CustomTabBar` reporta a própria altura pelo `BottomTabBarHeightCallbackContext`, no
+  `onLayout`;
+- o `useScreenPadding()` lê essa altura do `BottomTabBarHeightContext` e a usa como respiro
+  inferior. Fora das abas o contexto é `undefined` e ele cai no inset de safe area.
+
+Por isso o hook serve tela de aba e tela empilhada sem precisar saber onde está — e por isso
+`useBottomTabBarHeight()` não é usado: ele lança fora de um tab navigator.
 
 ## Acessibilidade
 

@@ -18,7 +18,7 @@ export function Home() {
 	} = useHomeController();
 
 	return (
-		<View className='flex-1 bg-gray-50'>
+		<View className='flex-1 bg-background'>
 			<FlatList
 				ListEmptyComponent={
 					<RestaurantsPlaceholder

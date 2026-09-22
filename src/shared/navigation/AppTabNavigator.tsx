@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HouseIcon, SearchIcon, UserIcon } from 'lucide-react-native';
+import { CustomTabBar } from 'presentation/components/CustomTabBar/CustomTabBar';
 import { Account } from 'presentation/screens/Account/Account';
 import { Home } from 'presentation/screens/Home/Home';
 import { Search } from 'presentation/screens/Search/Search';
-import { COLORS } from 'shared/constants/colors';
 import type { AppTabRoutesParamList } from './AppRoutesTypes';
 
 const Tab = createBottomTabNavigator<AppTabRoutesParamList>();
@@ -11,13 +11,8 @@ const Tab = createBottomTabNavigator<AppTabRoutesParamList>();
 export function AppTabNavigator() {
 	return (
 		<Tab.Navigator
-			screenOptions={{
-				headerShown: false,
-				tabBarActiveTintColor: COLORS.brand.DEFAULT,
-				tabBarInactiveTintColor: COLORS.gray[400],
-				tabBarStyle: { borderTopColor: COLORS.gray[200] },
-				tabBarLabelStyle: { fontFamily: 'Inter_500Medium', fontSize: 12 }
-			}}
+			screenOptions={{ headerShown: false }}
+			tabBar={(props) => <CustomTabBar {...props} />}
 		>
 			<Tab.Screen
 				component={Home}

@@ -9,7 +9,7 @@ export function ScreenLayout({ children, className }: IScreenLayoutProps) {
 	const contentPadding = useScreenPadding();
 
 	return (
-		<KeyboardAvoidingView behavior={keyboardBehavior} className='flex-1 bg-gray-50'>
+		<KeyboardAvoidingView behavior={keyboardBehavior} className='flex-1 bg-background'>
 			<ScrollView
 				contentContainerClassName={cn('grow px-6', className)}
 				contentContainerStyle={contentPadding}

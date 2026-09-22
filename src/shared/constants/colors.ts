@@ -1,4 +1,5 @@
 export const COLORS = {
+	background: '#FEFCFC',
 	brand: {
 		DEFAULT: '#D73035',
 		hover: '#BF222A',

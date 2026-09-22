@@ -18,7 +18,7 @@ export function Search() {
 	} = useSearchController();
 
 	return (
-		<View className='flex-1 bg-gray-50'>
+		<View className='flex-1 bg-background'>
 			<FlatList
 				ListEmptyComponent={
 					foundProducts.length > 0 ? null : (

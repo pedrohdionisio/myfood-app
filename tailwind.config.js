@@ -22,6 +22,7 @@ module.exports = {
 				label: ['13px', { lineHeight: '18px' }]
 			},
 			colors: {
+				background: '#FEFCFC',
 				brand: {
 					DEFAULT: '#D73035',
 					hover: '#BF222A',
