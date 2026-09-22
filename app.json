@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "MyFood",
+    "slug": "myfood",
+    "scheme": "myfood",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.myfood.app",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.myfood.app",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": ["expo-font", "expo-secure-store"]
+  }
+}
