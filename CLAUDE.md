@@ -69,7 +69,7 @@ Três camadas no topo de `src/`, cada uma com alias próprio:
 | --------------- | ---------------- | ------------------------------------------------------------------- |
 | `data/`         | `data/*`         | Só dados e mundo externo: endpoints, clients, DTOs, mappers, storage |
 | `presentation/` | `presentation/*` | Screens, componentes, layouts e a lógica deles (controllers)         |
-| `shared/`       | `shared/*`       | Navegação, utilitários, constantes, modelos e hooks compartilhados    |
+| `shared/`       | `shared/*`       | Navegação, utilitários, constantes, entidades e hooks compartilhados |
 
 Dependência anda numa direção só:
 
@@ -140,28 +140,58 @@ de criar uma peça, leia a regra correspondente:
 
 ## Estado atual do repositório
 
-O scaffold está montado e verificado (typecheck + lint). O que existe:
+Stack montada e sessão do cliente funcionando ponta a ponta. Verificado com typecheck + lint — o
+app **não foi executado**.
 
-- `App.tsx` — fontes Inter, `QueryClientProvider`, `SafeAreaProvider`,
-  `GestureHandlerRootView`, `BottomSheetModalProvider` e a `Navigation`
-- `src/data/config/` — `api` (+ `publicApi` e o atraso proposital de dev), `apiError`, `env`,
-  `queryClient`
-- `src/presentation/components/AppText/` — a única porta de entrada de texto, com a escala de
-  tipografia inteira
-- `src/presentation/screens/Home/` — screen mínima, só para provar que a stack sobe
-- `src/shared/navigation/` — `NavigationContainer` + native stack com a `Home`
-- `src/shared/constants/colors.ts` — espelho de `tailwind.config.js` para prop que exige valor
-- `src/shared/utils/` — `cn` e `sleep`
+O que existe e serve de molde:
+
+- `App.tsx` — fontes Inter, `QueryClientProvider`, `SafeAreaProvider`, `GestureHandlerRootView`,
+  `BottomSheetModalProvider`, `AuthProvider` e a `Navigation`
+- `src/data/config/` — `api` (+ `publicApi`, interceptor de 401 e o atraso proposital de dev),
+  `apiError`, `env`, `queryClient`
+- `src/data/contexts/AuthProvider/` + `src/data/libs/AuthTokensManager.ts` — sessão persistida no
+  `expo-secure-store` e restaurada no boot
+- `src/data/modules/auth/` — `signIn`, `signUp`, `refreshToken`, `getMe`; é o **molde de módulo de
+  data** (types, keys, services, useCases com schema zod)
+- `src/presentation/components/` — `AppText` (única porta de texto), `Button`, `Input` (react-hook-form
+  por dentro, via `useController`)
+- `src/presentation/layouts/ScreenLayout/` — safe area + `KeyboardAvoidingView` + scroll
+- `src/presentation/screens/SignIn/` — **molde de screen composta**: a screen só monta
+  `SignInHeader` + `SignInForm` + rodapé, e o formulário tem controller próprio. Mesmo desenho da
+  `Login` do dashboard
+- `src/presentation/screens/SignUp/` — molde de formulário com schema que transforma (zod `.transform`
+  + `useForm<Form, unknown, Payload>`); ainda desenha tudo na própria screen
+- `src/presentation/screens/Home/` — sessão ativa + sair
+- `src/shared/assets/` — `black-red-logo.svg` (fonte, cópia do dashboard) e `svgs/Logo.tsx` (o
+  componente `react-native-svg` que as telas usam)
+- `src/shared/navigation/` — `Navigation` escolhe `AuthStack` ou `AppStack` pelo estado da sessão
+- `src/shared/entities/ICustomer.ts` — modelo de domínio, no mesmo lugar que o dashboard usa
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
-- **Nenhum módulo em `data/modules/`.** Não há auth, nem sessão, nem `AuthProvider`, nem
-  `AuthTokensManager`. `setAccessToken`/`removeAccessToken` existem em `api.ts` sem ninguém
-  chamando, e **não há interceptor de 401** — ele nasce junto com o refresh, não antes
-- nenhum `Button`, `Input`, `Skeleton` ou layout de tela; `AppText` é o único componente
-- nenhum asset: `app.json` não declara ícone nem splash, então o Expo usa os padrões dele
-- as pastas nativas `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client` —
-  o app roda no Expo Go até alguma lib nativa exigir o contrário
+- **Nada de catálogo.** Sem restaurantes, cardápio, carrinho, endereço, pedido ou pagamento —
+  `Home` é uma tela de prova, não a home de verdade
+- sem abas: a navegação autenticada é um stack de uma screen só
+- sem `Skeleton`, sem `ErrorState`, sem componente de lista vazia — os três estados de tela estão
+  escritos na regra mas não têm molde implementado
+- sem toast: erro de API aparece como texto abaixo do formulário, no `apiErrorMessage` do controller
+- sem asset: `app.json` não declara ícone nem splash, então o Expo usa os padrões dele
+- as pastas nativas `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
+
+### Pendências conhecidas
+
+- **Login obrigatório na entrada, por decisão.** O modelo iFood (navegar deslogado, login só no
+  checkout) foi descartado agora porque não há catálogo para proteger. Quando o checkout existir,
+  isso vira uma mudança em `Navigation`.
+- **Falha de rede no boot desloga visualmente.** `restoreSession` faz `getMe().catch(() => null)`,
+  então um blip de rede cai na `AuthStack` mesmo com token válido guardado — o token continua no
+  device e o próximo boot restaura. Distinguir 401 de erro de rede resolveria.
+- **Não há teste automatizado.** O interceptor de 401 (renovação, replay, corrida e deslogue) nunca
+  foi exercitado — nem por teste, nem rodando o app.
+- **A senha não tem revelar.** `secureTextEntry` sem olho; se virar requisito, é um `PasswordInput`
+  ao lado do `Input`.
+- **Telefone sem máscara.** O campo aceita dígito cru e o schema valida 10 ou 11 dígitos. Máscara
+  de exibição entra quando houver um util de máscara compartilhado.
 
 Quando uma dessas lacunas for preenchida, atualize esta seção. Documentação que ficou falsa
 desencaminha a próxima pessoa.

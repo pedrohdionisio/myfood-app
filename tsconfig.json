@@ -9,7 +9,7 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "paths": {
       "data/*": ["./src/data/*"],
       "presentation/*": ["./src/presentation/*"],

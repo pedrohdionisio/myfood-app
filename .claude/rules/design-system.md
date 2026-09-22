@@ -88,7 +88,21 @@ Safe area vem de `react-native-safe-area-context`, nunca de constante chutada.
 nomeado: só o ícone usado entra no bundle. Ícone decorativo dentro de área clicável não recebe label
 próprio; quem descreve a ação é o elemento clicável.
 
-Nada de SVG colado no JSX e nada de uma segunda biblioteca de ícones.
+Nada de uma segunda biblioteca de ícones.
+
+## Logo e outros SVG de marca
+
+O Metro não tem transformer de `.svg`, então não se importa um `.svg` como componente. O arquivo
+original fica em `src/shared/assets/` como **fonte**, copiado byte a byte do
+`myfood-dashboard/src/shared/assets/`, e a versão consumível é um componente `react-native-svg` em
+`src/shared/assets/svgs/` — `Logo.tsx` é o molde.
+
+O Biome ignora `**/*.svg` (`biome.json`) de propósito: sem isso o `noSvgWithoutTitle` acusa o
+arquivo de marca, e a correção seria editar um asset que precisa continuar idêntico ao do dashboard.
+
+Dentro do componente, o `fill` vem de `COLORS`, não do hex do arquivo: o vermelho do arquivo é
+exatamente `COLORS.brand.DEFAULT`, e o `black` das letras "MY" virou `COLORS.gray[900]`. SVG colado
+direto no JSX de um componente continua proibido — o lugar é `shared/assets/svgs/`.
 
 ## Classe precisa ser literal
 

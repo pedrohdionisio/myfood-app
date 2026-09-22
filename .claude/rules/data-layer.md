@@ -70,7 +70,7 @@ OrderService.create(payload);
 mexer em item do pedido, aí é `createItem` — porque `create` sozinho não diria mais o quê. Mesma
 lógica para `AddressService.findByZipCode`: `find` sozinho não diz por onde se busca.
 
-Verbo que não repete o nome do service já está certo: `AuthService.login()`,
+Verbo que não repete o nome do service já está certo: `AuthService.signIn()`,
 `AuthService.refreshToken()`, `AuthService.getMe()`.
 
 A regra é do método do service. O hook do useCase continua com o nome inteiro
@@ -78,19 +78,19 @@ A regra é do método do service. O hook do useCase continua com o nome inteiro
 
 ## useCases
 
-Um caso de uso por pasta, com o nome da ação (`login/`, `listRestaurants/`). O hook devolve **um
+Um caso de uso por pasta, com o nome da ação (`signIn/`, `listRestaurants/`). O hook devolve **um
 objeto** com nome de domínio, não o retorno cru do React Query:
 
 ```ts
-export function useLogin() {
+export function useSignIn() {
 	const { mutateAsync, isPending } = useMutation({
-		mutationKey: [AUTH_MUTATION_KEYS.LOGIN],
-		mutationFn: AuthService.login
+		mutationKey: [AUTH_MUTATION_KEYS.SIGN_IN],
+		mutationFn: AuthService.signIn
 	});
 
 	return {
-		login: mutateAsync,
-		isLoggingIn: isPending
+		signIn: mutateAsync,
+		isSigningIn: isPending
 	};
 }
 ```
@@ -101,7 +101,7 @@ controller (`controllers.md`).
 ## DTO x modelo de domínio
 
 O DTO espelha a API, com os nomes e formatos dela. O modelo de domínio é o que o resto do app
-consome, e mora em `shared/models/`.
+consome, e mora em `shared/entities/`.
 
 O mapper é a única ponte entre os dois. **Nenhum DTO atravessa para `presentation/`** — assim
 mudança de contrato da API para no mapper em vez de espalhar pelos componentes.
@@ -135,9 +135,9 @@ O axios **não** intercepta erro para exibir nada. Interceptor que mostra toast 
 chance de não mostrar — e existem casos assim: um 404 esperado numa busca, um 409 que vira merge em
 vez de aviso. O tratamento fica no `catch` da chamada, no controller.
 
-O único interceptor de resposta que deve existir é o de **401**, e ele não exibe nada: só renova a
-sessão e, se a renovação falhar, encerra. **Ele ainda não existe** — nasce junto com o
-`AuthProvider`, não antes.
+O único interceptor de resposta que existe é o de **401**, e ele não exibe nada: só renova a
+sessão e, se a renovação falhar, encerra. Sem ele, todo controller teria que lembrar de deslogar, e
+o que fosse esquecido viraria tela quebrada.
 
 ### Atraso proposital em dev
 
@@ -151,17 +151,36 @@ passar a ler `requestDelayMs` em outro lugar.
 
 ## Sessão
 
-Quando a sessão entrar: token no `expo-secure-store` via `data/libs/AuthTokensManager.ts`, e o
-interceptor de 401 em `api.ts` instalado pelo `AuthProvider` só enquanto existe sessão.
+O app do cliente fala com o pool de **customer** da API: `/auth/customers/sign-in`,
+`/auth/customers/sign-up`, `/auth/customers/refresh` e `GET /customers/me`. As rotas de
+`restaurant-users` são do dashboard e não têm uso aqui.
 
-Três detalhes que não são opcionais quando isso for escrito:
+Os tokens ficam no `expo-secure-store` via `data/libs/AuthTokensManager.ts`, e o interceptor de 401
+em `api.ts` é instalado pelo `AuthProvider` só enquanto existe sessão.
+
+Três detalhes do interceptor que não são opcionais:
 
 - **A promise do refresh é compartilhada.** Cinco requests tomando 401 juntas disparam **um**
   refresh; as outras esperam a mesma promise.
 - **O header é reaplicado antes do replay.** O `config` que volta no erro já tem o `Authorization`
   antigo materializado — repetir a request sem sobrescrever manda o token expirado de novo.
-- **401 depois de renovar desloga.** Sem esse ramo a sessão fica viva e quebrada.
+- **401 depois de renovar desloga.** É o caso da conta desativada no meio da sessão: o refresh
+  funciona (o Cognito não sabe de nada) e o `/customers/me` continua 401. Sem esse ramo a sessão
+  fica viva e quebrada.
 
-`login` e `refresh-token` saem pelo `publicApi`, a instância **sem** interceptor. Não é estilo: se o
-refresh saísse pelo `api`, um 401 nele reentraria no interceptor e travaria esperando a própria
-promise.
+`sign-in`, `sign-up` e `refresh` saem pelo `publicApi`, a instância **sem** interceptor. Não é
+estilo: se o refresh saísse pelo `api`, um 401 nele reentraria no interceptor e travaria esperando a
+própria promise.
+
+O refresh da myfood-api devolve só `{ accessToken, idToken, expiresIn }` — **não** rotaciona o
+refresh token. Por isso `refreshAccessToken` regrava o par com o mesmo `refreshToken` de antes, e
+não existe o risco de duas rotações concorrentes derrubarem uma à outra.
+
+### A chave do SecureStore não aceita qualquer caractere
+
+O dashboard guarda tudo sob `@myfood:auth-tokens` no `localStorage`. Aqui isso **lança**: o
+SecureStore só aceita chave alfanumérica mais `.`, `-` e `_`. Daí `myfood.auth.access-token` e
+`myfood.auth.refresh-token`.
+
+São duas chaves, não um JSON só, porque o SecureStore avisa (e no futuro vai falhar) acima de 2048
+bytes por valor — e dois JWT do Cognito no mesmo valor passam perto demais desse teto.

@@ -43,7 +43,7 @@ O caso real onde isso decide: `AppRoutesParamList` é `type` porque o React Navi
 signature implícita, e interface não tem. Trocar para `interface` quebra o `createNativeStackNavigator`.
 
 Tipos de um componente ou screen ficam em `<Nome>Types.ts` ao lado dele. Tipo consumido por mais de
-uma camada vai para `shared/models/`.
+uma camada vai para `shared/entities/`.
 
 ## Import de tipo
 

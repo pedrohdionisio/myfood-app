@@ -1,6 +1,6 @@
 import type { VariantProps } from 'class-variance-authority';
 import type { TextProps } from 'react-native';
-import type { appTextVariants } from './appTextVariants';
+import type { appTextVariants } from './AppTextStyles';
 
 export interface IAppTextProps extends TextProps, VariantProps<typeof appTextVariants> {
 	className?: string;

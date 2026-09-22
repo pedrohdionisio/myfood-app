@@ -16,17 +16,29 @@ no topo, que competiria com `presentation/screens/` e quebraria a regra de que r
 
 ```
 src/shared/navigation/
-├── AppRoutesTypes.ts    # o param list e a augmentação global
-└── Navigation.tsx       # NavigationContainer + o stack
+├── AppRoutesTypes.ts    # os param lists e a augmentação global
+├── AuthStack.tsx        # SignIn, SignUp
+├── AppStack.tsx         # o que exige sessão
+└── Navigation.tsx       # NavigationContainer + a escolha entre os dois
 ```
 
-Quando o app ganhar sessão e abas, esta pasta cresce no molde do dashboard e dos apps irmãos:
-`Navigation` decide entre `AuthStack` e `AppStack` pelo estado da sessão, e `AppTabNavigator` fica
-dentro do `AppStack`. Cada um em arquivo próprio.
+`Navigation` decide entre `AuthStack` e `AppStack` pelo `signedIn` do `useAuth()`. **Login é
+obrigatório na entrada**, por decisão de produto: não existe rota pública. Trocar isso — modelo
+iFood, com catálogo aberto e login só no checkout — é mudar `Navigation` e promover `SignIn` a
+modal; não espalhe guarda por screen.
+
+Quando o app ganhar abas, o `AppTabNavigator` entra dentro do `AppStack`, em arquivo próprio.
 
 ## Param list
 
+Um param list por stack, e a augmentação global junta os dois:
+
 ```ts
+export type AuthRoutesParamList = {
+	SignIn: undefined;
+	SignUp: undefined;
+};
+
 export type AppRoutesParamList = {
 	Home: undefined;
 	Restaurant: { restaurantId: string };
@@ -34,7 +46,7 @@ export type AppRoutesParamList = {
 
 declare global {
 	namespace ReactNavigation {
-		interface RootParamList extends AppRoutesParamList {}
+		interface RootParamList extends AuthRoutesParamList, AppRoutesParamList {}
 	}
 }
 ```

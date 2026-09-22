@@ -1,16 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home } from 'presentation/screens/Home/Home';
-import type { AppRoutesParamList } from './AppRoutesTypes';
-
-const Stack = createNativeStackNavigator<AppRoutesParamList>();
+import { useAuth } from 'data/contexts/AuthProvider/AuthProvider';
+import { AppStack } from './AppStack';
+import { AuthStack } from './AuthStack';
 
 export function Navigation() {
-	return (
-		<NavigationContainer>
-			<Stack.Navigator screenOptions={{ headerShown: false }}>
-				<Stack.Screen name='Home' component={Home} />
-			</Stack.Navigator>
-		</NavigationContainer>
-	);
+	const { signedIn } = useAuth();
+
+	return <NavigationContainer>{signedIn ? <AppStack /> : <AuthStack />}</NavigationContainer>;
 }

@@ -13,6 +13,7 @@
       "!**/android",
       "!**/ios",
       "!**/dist",
+      "!**/*.svg",
       "!**/expo-env.d.ts",
       "!**/yarn.lock"
     ]
