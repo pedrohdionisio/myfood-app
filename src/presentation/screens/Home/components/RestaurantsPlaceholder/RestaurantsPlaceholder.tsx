@@ -35,11 +35,19 @@ export function RestaurantsPlaceholder({
 		case 'error':
 			return <ErrorState actionTitle='Tentar de novo' message={errorMessage} onAction={onRetry} />;
 
+		case 'noResults':
+			return (
+				<EmptyState
+					description='Tente outro termo, outra categoria, ou mostre também os fechados.'
+					title='Nada encontrado'
+				/>
+			);
+
 		default:
 			return (
 				<EmptyState
-					description='Ainda não há restaurantes ativos entregando na sua região.'
-					title='Nada por aqui ainda'
+					description='Nenhum restaurante aberto entregando na sua região agora.'
+					title='Tudo fechado por aqui'
 				/>
 			);
 	}

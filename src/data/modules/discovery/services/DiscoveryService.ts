@@ -1,9 +1,7 @@
 import { api } from 'data/config/api';
 import type {
 	IListRestaurantsPayload,
-	IListRestaurantsResponse,
-	ISearchPayload,
-	ISearchResponse
+	IListRestaurantsResponse
 } from 'data/modules/discovery/types/DiscoveryTypes';
 
 async function listRestaurants(
@@ -16,15 +14,6 @@ async function listRestaurants(
 	return data;
 }
 
-async function search(payload: ISearchPayload): Promise<ISearchResponse> {
-	const { data } = await api.get<ISearchResponse>('/discovery/search', {
-		params: payload
-	});
-
-	return data;
-}
-
 export const DiscoveryService = {
-	listRestaurants,
-	search
+	listRestaurants
 };

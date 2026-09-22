@@ -1,9 +1,11 @@
-import type { IProductHit } from 'shared/entities/IProductHit';
 import type { IRestaurantSummary } from 'shared/entities/IRestaurantSummary';
 
 export interface IListRestaurantsPayload {
 	page: number;
 	addressId?: string;
+	q?: string;
+	cuisineSlug?: string;
+	includeClosed: boolean;
 }
 
 export interface IListRestaurantsResponse {
@@ -11,14 +13,4 @@ export interface IListRestaurantsResponse {
 	page: number;
 	perPage: number;
 	hasMore: boolean;
-}
-
-export interface ISearchPayload {
-	q: string;
-	addressId?: string;
-}
-
-export interface ISearchResponse {
-	restaurants: IRestaurantSummary[];
-	products: IProductHit[];
 }

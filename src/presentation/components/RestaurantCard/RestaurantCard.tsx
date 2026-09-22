@@ -5,9 +5,11 @@ import { View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { formatPrice } from 'shared/utils/formatPrice';
 import type { IRestaurantCardProps } from './RestaurantCardTypes';
+import { toCuisineLabel } from './utils/toCuisineLabel';
 
 export function RestaurantCard({ restaurant }: IRestaurantCardProps) {
 	const isClosed = !restaurant.isOpenNow || !restaurant.isAcceptingOrders;
+	const cuisineLabel = toCuisineLabel(restaurant.cuisines);
 
 	return (
 		<View className='flex-row items-center gap-4 rounded-xl border border-gray-200 bg-white p-4'>
@@ -17,6 +19,12 @@ export function RestaurantCard({ restaurant }: IRestaurantCardProps) {
 				<AppText color='strong' numberOfLines={1} size='bodyMd' weight='semibold'>
 					{restaurant.tradeName}
 				</AppText>
+
+				{!!cuisineLabel && (
+					<AppText color='subtle' numberOfLines={1} size='bodySm'>
+						{cuisineLabel}
+					</AppText>
+				)}
 
 				<View className='flex-row items-center gap-3'>
 					<View className='flex-row items-center gap-1'>

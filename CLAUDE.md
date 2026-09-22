@@ -144,8 +144,11 @@ Sessão do cliente, endereços e descoberta de restaurantes prontos. Verificado 
 — o app **nunca foi executado**.
 
 Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp) ou `AppStack` pela sessão. O `AppStack`
-tem `AppTabNavigator` (Início · Busca · Conta) mais `Addresses` e `AddressForm` empilhados. A tab
-bar é a nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
+tem `AppTabNavigator` (Início · Conta) mais `Addresses` e `AddressForm` empilhados. A tab bar é a
+nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
+
+Não existe aba de busca: o campo mora no cabeçalho da `Home`, ao lado do botão de filtros, com as
+pills de categoria logo abaixo.
 
 O que existe e serve de molde:
 
@@ -155,19 +158,34 @@ O que existe e serve de molde:
 - `data/modules/auth/` — molde de módulo com mutation
 - `data/modules/customerAddress/` — **molde de CRUD**: query + 4 mutations que invalidam a listagem,
   e `schemas/addressFormSchema.ts` (schema de módulo, usado por criar e editar)
-- `data/modules/discovery/` — **molde de lista paginada** (`useInfiniteQuery`) e de busca com
-  `enabled`
+- `data/modules/discovery/` — **molde de lista paginada** (`useInfiniteQuery`), com busca por
+  texto, filtro de culinária e `includeClosed` na mesma query key
+- `data/modules/cuisine/` — catálogo de categorias (`/cuisine-categories`), com `staleTime` de 1h
 - `data/modules/address/` — consulta de CEP no ViaCEP, com mapper; espelha o módulo homônimo do
   dashboard
 - `presentation/components/` — `AppText`, `AppImage`, `Button`, `Input`, `Skeleton`, `EmptyState`,
   `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
-- `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (lista paginada com os
-  três estados), `Search` (busca com debounce), `Account`, `Addresses`, `AddressForm` (formulário
-  com auto-preenchimento por CEP)
+- `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
+  lista paginada com os estados), `Account`, `Addresses`, `AddressForm` (formulário com
+  auto-preenchimento por CEP)
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
+
+### Discovery: o que a API filtra e o que ela não filtra
+
+`GET /discovery/restaurants` aceita `q`, `cuisineSlug` e `includeClosed` (default `false`, então
+restaurante fechado **não** aparece sem o usuário pedir). O summary traz `cuisines`, que alimenta
+tanto o rótulo do card quanto o sentido das pills.
+
+Esses três parâmetros foram adicionados à `myfood-api` para esta tela — não existiam. O
+`ListRestaurantsUseCase` de lá lê a cidade inteira antes de paginar, com teto de
+`MAX_CITY_ROWS = 500`, porque `isOpenNow` sai do `isOpenAt`, que é regra de domínio em TypeScript.
+Ao mexer em qualquer um dos lados, leia o comentário que está naquele arquivo.
+
+**`q` casa só com o nome do restaurante.** Buscar por prato continua sendo `GET /discovery/search`,
+que a API mantém e o app não consome mais.
 
 ### A tab bar flutua, então o respiro inferior vem dela
 
@@ -202,7 +220,11 @@ O que **não** existe ainda, e por isso não deve ser referenciado como se exist
 - **Falha de rede no boot desloga visualmente.** `restoreSession` faz `getMe().catch(() => null)`.
 - **Não há teste automatizado.** O interceptor de 401 nunca foi exercitado.
 - **Telefone sem máscara** no cadastro, e **senha sem revelar**.
-- **Busca não pagina.** `/discovery/search` tem `limit` (default 20) e o app usa o default.
+- **Não dá para buscar por prato.** A aba de busca saiu e com ela o consumo de `/discovery/search`,
+  que era o único jeito de achar restaurante pelo que ele vende. Voltar exige `q` casar com produto
+  na API, ou uma tela dedicada.
+- **O filtro só tem um item.** A sheet de filtros existe com `Mostrar fechados` apenas; ela foi
+  desenhada para receber mais (faixa de preço, entrega grátis, avaliação) quando a API tiver.
 - **A lista de restaurantes ignora `addressId`.** A API aceita o parâmetro e cai no primeiro
   endereço do cliente quando ele não vem. Trocar de endereço na Home exige passar `addressId` e
   colocá-lo na query key.

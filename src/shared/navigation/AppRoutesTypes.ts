@@ -5,7 +5,6 @@ export type AuthRoutesParamList = {
 
 export type AppTabRoutesParamList = {
 	Home: undefined;
-	Search: undefined;
 	Account: undefined;
 };
 

@@ -1,3 +1,4 @@
+import type { ICuisineCategory } from './ICuisineCategory';
 import type { IImageUrls } from './IImageUrls';
 
 export interface IRestaurantSummary {
@@ -14,6 +15,7 @@ export interface IRestaurantSummary {
 	avgPrepTimeMin: number;
 	isAcceptingOrders: boolean;
 	isOpenNow: boolean;
+	cuisines: Pick<ICuisineCategory, 'id' | 'name' | 'slug'>[];
 	ratingAvg: number;
 	ratingCount: number;
 }
