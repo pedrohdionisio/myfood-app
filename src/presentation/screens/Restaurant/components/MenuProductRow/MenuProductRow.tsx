@@ -1,12 +1,18 @@
 import { AppImage } from 'presentation/components/AppImage/AppImage';
 import { AppText } from 'presentation/components/AppText/AppText';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { formatPrice } from 'shared/utils/formatPrice';
 import type { IMenuProductRowProps } from './MenuProductRowTypes';
 
-export function MenuProductRow({ product }: IMenuProductRowProps) {
+export function MenuProductRow({ product, onPress }: IMenuProductRowProps) {
 	return (
-		<View className='flex-row items-center gap-4 border-gray-200 border-b py-4'>
+		<Pressable
+			accessibilityLabel={`Adicionar ${product.name}`}
+			accessibilityRole='button'
+			className='flex-row items-center gap-4 border-gray-200 border-b py-4 active:opacity-80'
+			disabled={!product.isAvailable}
+			onPress={onPress}
+		>
 			<View className='flex-1 gap-1'>
 				<AppText color='strong' numberOfLines={1} size='bodyMd' weight='medium'>
 					{product.name}
@@ -30,6 +36,6 @@ export function MenuProductRow({ product }: IMenuProductRowProps) {
 			</View>
 
 			<AppImage className='h-20 w-20 rounded-lg bg-gray-100' source={product.imageUrls?.sm} />
-		</View>
+		</Pressable>
 	);
 }

@@ -1,0 +1,9 @@
+export const ORDER_QUERY_KEYS = {
+	LIST_ORDERS: 'LIST_ORDERS',
+	GET_ORDER: 'GET_ORDER'
+} as const;
+
+export const ORDER_MUTATION_KEYS = {
+	CREATE_ORDER: 'CREATE_ORDER',
+	CANCEL_ORDER: 'CANCEL_ORDER'
+} as const;

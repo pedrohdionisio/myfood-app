@@ -144,7 +144,8 @@ Sessão do cliente, endereços e descoberta de restaurantes prontos. Verificado 
 — o app **nunca foi executado**.
 
 Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp) ou `AppStack` pela sessão. O `AppStack`
-tem `AppTabNavigator` (Início · Conta) mais `Restaurant`, `Addresses` e `AddressForm` empilhados. A tab bar é a
+tem `AppTabNavigator` (Início · Pedidos · Conta) mais `Restaurant`, `Checkout`, `Payment`, `Order`,
+`Addresses` e `AddressForm` empilhados. A tab bar é a
 nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
 
 Não existe aba de busca: o campo mora no cabeçalho da `Home`, ao lado do botão de filtros, com as
@@ -161,6 +162,9 @@ O que existe e serve de molde:
 - `data/modules/discovery/` — **molde de lista paginada** (`useInfiniteQuery`), com busca por
   texto, filtro de culinária e `includeClosed` na mesma query key
 - `data/modules/cuisine/` — catálogo de categorias (`/cuisine-categories`), com `staleTime` de 1h
+- `data/modules/order/` — criar, listar, detalhe (com polling) e cancelar
+- `data/modules/payment/` — cobrança Pix: criar e consultar (com polling)
+- `data/contexts/CartProvider/` — carrinho **em memória**, um restaurante por vez
 - `data/modules/address/` — consulta de CEP no ViaCEP, com mapper; espelha o módulo homônimo do
   dashboard
 - `presentation/components/` — `AppText`, `AppImage`, `Button`, `Input`, `Skeleton`, `EmptyState`,
@@ -168,7 +172,8 @@ O que existe e serve de molde:
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
   lista paginada com os estados), `Restaurant` (banner, logo, cardápio por categoria), `Account`,
-  `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP)
+  `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP), `Checkout`, `Payment`
+  (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega)
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
@@ -183,6 +188,32 @@ Esses três parâmetros foram adicionados à `myfood-api` para esta tela — nã
 `ListRestaurantsUseCase` de lá lê a cidade inteira antes de paginar, com teto de
 `MAX_CITY_ROWS = 500`, porque `isOpenNow` sai do `isOpenAt`, que é regra de domínio em TypeScript.
 Ao mexer em qualquer um dos lados, leia o comentário que está naquele arquivo.
+
+### Pedido: o que o contrato obriga
+
+- **`POST /orders` exige o header `Idempotency-Key` (UUID).** O schema rejeita sem ele. O
+  `useCheckoutController` gera um por montagem da tela, num `useRef` — não por render, senão cada
+  tecla digitada criaria uma chave nova e a proteção contra duplo toque sumiria.
+- **`ONLINE` não termina o checkout.** Com Pix o pedido nasce em `PENDING_PAYMENT`; quem o leva a
+  `PENDING` é o **webhook do gateway**. Por isso o checkout navega para `Payment`, que chama
+  `POST /orders/:id/payment` e fica em polling de 5s no `GET`. `CASH` e `CARD_ON_DELIVERY` nascem
+  em `PENDING` e vão direto para `Order`.
+- **Não há realtime** (é a Phase 11 da API). Status de pedido é polling de 15s no detalhe, e ele
+  para sozinho quando o pedido chega a um estado final.
+- **Cancelar só em `PENDING`.** Em qualquer outro status o botão não é renderizado.
+- **O código de entrega só existe em `GET /orders/:orderId`.** A listagem não traz. É ele que o
+  entregador pede para confirmar a entrega, e por isso a tela de detalhe não é opcional.
+- **O total da tela é estimativa.** `POST /orders` recalcula tudo pelo banco; o que o carrinho
+  soma serve para exibir, não para cobrar.
+
+### O carrinho é de um restaurante por vez
+
+`addCartItem` troca o restaurante e descarta os itens quando o produto vem de outro — `POST /orders`
+recebe um `restaurantId` só, então carrinho misto seria impossível de enviar. Quem avisa o usuário
+antes é o controller da tela do restaurante, com um `Alert`; o provider não abre diálogo.
+
+Ele vive **em memória**: fechar o app esvazia. É de propósito — carrinho persistido mostraria preço
+velho, e o preço real só se conhece no `POST /orders`.
 
 ### A tela do restaurante precisa de id e slug
 
@@ -233,8 +264,14 @@ O que **não** existe ainda, e por isso não deve ser referenciado como se exist
 - **Não dá para buscar por prato.** A aba de busca saiu e com ela o consumo de `/discovery/search`,
   que era o único jeito de achar restaurante pelo que ele vende. Voltar exige `q` casar com produto
   na API, ou uma tela dedicada.
-- **O cardápio não é clicável.** `MenuProductRow` mostra o item e não abre nada: não existe tela de
-  produto, complementos nem carrinho. É a emenda da próxima fatia.
+- **Complementos não existem.** A sheet do produto tem quantidade e observação; os grupos de opção
+  do restaurante (`option_groups` na API) não são lidos nem enviados.
+- **Avaliação não foi feita.** `POST/GET /orders/:id/review` existem e a listagem já traz
+  `hasReview`, mas não há tela.
+- **O Pix não tem contagem regressiva.** A tela mostra o horário de expiração e depende do polling
+  para descobrir que expirou.
+- **Pagamento nunca rodou de verdade.** O plano da `myfood-api` marca a Phase 10 como escrita e não
+  verificada — este app é o primeiro a exercitar o caminho.
 - **O filtro só tem um item.** A sheet de filtros existe com `Mostrar fechados` apenas; ela foi
   desenhada para receber mais (faixa de preço, entrega grátis, avaliação) quando a API tiver.
 - **A lista de restaurantes ignora `addressId`.** A API aceita o parâmetro e cai no primeiro

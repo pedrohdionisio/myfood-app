@@ -1,0 +1,7 @@
+export const PAYMENT_QUERY_KEYS = {
+	GET_PAYMENT: 'GET_PAYMENT'
+} as const;
+
+export const PAYMENT_MUTATION_KEYS = {
+	CREATE_PIX_PAYMENT: 'CREATE_PIX_PAYMENT'
+} as const;

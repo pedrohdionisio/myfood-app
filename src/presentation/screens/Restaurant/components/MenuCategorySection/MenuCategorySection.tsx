@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { MenuProductRow } from '../MenuProductRow/MenuProductRow';
 import type { IMenuCategorySectionProps } from './MenuCategorySectionTypes';
 
-export function MenuCategorySection({ category }: IMenuCategorySectionProps) {
+export function MenuCategorySection({ category, onSelectProduct }: IMenuCategorySectionProps) {
 	return (
 		<View className='px-6'>
 			<AppText color='strong' size='titleSm' weight='semibold'>
@@ -11,7 +11,11 @@ export function MenuCategorySection({ category }: IMenuCategorySectionProps) {
 			</AppText>
 
 			{category.products.map((product) => (
-				<MenuProductRow key={product.id} product={product} />
+				<MenuProductRow
+					key={product.id}
+					onPress={() => onSelectProduct(product)}
+					product={product}
+				/>
 			))}
 		</View>
 	);

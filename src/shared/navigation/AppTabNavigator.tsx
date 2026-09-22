@@ -1,8 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HouseIcon, UserIcon } from 'lucide-react-native';
+import { HouseIcon, ReceiptTextIcon, UserIcon } from 'lucide-react-native';
 import { CustomTabBar } from 'presentation/components/CustomTabBar/CustomTabBar';
 import { Account } from 'presentation/screens/Account/Account';
 import { Home } from 'presentation/screens/Home/Home';
+import { Orders } from 'presentation/screens/Orders/Orders';
 import type { AppTabRoutesParamList } from './AppRoutesTypes';
 
 const Tab = createBottomTabNavigator<AppTabRoutesParamList>();
@@ -19,6 +20,17 @@ export function AppTabNavigator() {
 				options={{
 					title: 'Início',
 					tabBarIcon: ({ color, size }) => <HouseIcon color={color} size={size} strokeWidth={1.8} />
+				}}
+			/>
+
+			<Tab.Screen
+				component={Orders}
+				name='Orders'
+				options={{
+					title: 'Pedidos',
+					tabBarIcon: ({ color, size }) => (
+						<ReceiptTextIcon color={color} size={size} strokeWidth={1.8} />
+					)
 				}}
 			/>
 

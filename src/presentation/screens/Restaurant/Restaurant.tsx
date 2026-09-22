@@ -2,7 +2,9 @@ import { ChevronLeftIcon } from 'lucide-react-native';
 import { EmptyState } from 'presentation/components/EmptyState/EmptyState';
 import { FlatList, Pressable, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
+import { CartBar } from './components/CartBar/CartBar';
 import { MenuCategorySection } from './components/MenuCategorySection/MenuCategorySection';
+import { ProductSheet } from './components/ProductSheet/ProductSheet';
 import { RestaurantHeader } from './components/RestaurantHeader/RestaurantHeader';
 import { RestaurantPlaceholder } from './components/RestaurantPlaceholder/RestaurantPlaceholder';
 import { useRestaurantController } from './useRestaurantController';
@@ -11,11 +13,20 @@ export function Restaurant() {
 	const {
 		restaurant,
 		menuCategories,
+		productSheetRef,
+		selectedProduct,
+		cartItemCount,
+		cartSubtotalCents,
+		shouldShowCartBar,
+		bottomInset,
 		topInset,
 		contentPadding,
 		screenState,
 		shouldShowMenu,
 		errorMessage,
+		handleSelectProduct,
+		handleAddProduct,
+		handleGoToCheckout,
 		handleRetry,
 		handleGoBack
 	} = useRestaurantController();
@@ -46,7 +57,9 @@ export function Restaurant() {
 					contentContainerStyle={contentPadding}
 					data={menuCategories}
 					keyExtractor={(category) => category.id}
-					renderItem={({ item }) => <MenuCategorySection category={item} />}
+					renderItem={({ item }) => (
+						<MenuCategorySection category={item} onSelectProduct={handleSelectProduct} />
+					)}
 					showsVerticalScrollIndicator={false}
 				/>
 			) : (
@@ -56,6 +69,17 @@ export function Restaurant() {
 					screenState={screenState}
 				/>
 			)}
+
+			{shouldShowCartBar && (
+				<CartBar
+					bottomInset={bottomInset}
+					itemCount={cartItemCount}
+					onPress={handleGoToCheckout}
+					subtotalCents={cartSubtotalCents}
+				/>
+			)}
+
+			<ProductSheet onAdd={handleAddProduct} product={selectedProduct} sheetRef={productSheetRef} />
 		</View>
 	);
 }

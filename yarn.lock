@@ -2214,12 +2214,22 @@ expo-asset@~57.0.18:
     "@expo/image-utils" "^0.11.5"
     expo-constants "~57.0.19"
 
+expo-clipboard@~57.0.2:
+  version "57.0.2"
+  resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-57.0.2.tgz#639996f99407acd34d37ba3d3b7f0b094ca62d97"
+  integrity sha512-VB4Au8X/RbvJKUtJk+87vdtveWSNEa5RzY3ooeO6VNF7Rd49RbQXZOu3/TfEW9p7mU8TCfyTvjyCiAUwSoSJ4w==
+
 expo-constants@~57.0.19:
   version "57.0.19"
   resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-57.0.19.tgz#9df45e23672342f44f12f290399d95097af738c6"
   integrity sha512-3eK1kZRwCdMizQLlM/PPlPwjaPnB5qKvdRDMBMnB1ZxmvWJBf9TB4uEO4DMMfIPaFUxYFs29dsR5fPr1gh3FTQ==
   dependencies:
     "@expo/env" "~2.4.3"
+
+expo-crypto@~57.0.3:
+  version "57.0.3"
+  resolved "https://registry.yarnpkg.com/expo-crypto/-/expo-crypto-57.0.3.tgz#e232bf2775f268baa8c5afab30085dc850410bb2"
+  integrity sha512-SAWqEfF37nc8ot7bXsVmu9AFYwQdC2kGvH/eNAHiR3bmlcf1Vv8wu9AnGKT+a90r3T8YfwMpZP4QAYlo4vCn9w==
 
 expo-file-system@~57.0.7:
   version "57.0.7"

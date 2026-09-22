@@ -9,6 +9,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'data/config/queryClient';
 import { AuthProvider } from 'data/contexts/AuthProvider/AuthProvider';
+import { CartProvider } from 'data/contexts/CartProvider/CartProvider';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -35,7 +36,9 @@ export default function App() {
 						<StatusBar style='dark' />
 
 						<AuthProvider>
-							<Navigation />
+							<CartProvider>
+								<Navigation />
+							</CartProvider>
 						</AuthProvider>
 					</BottomSheetModalProvider>
 				</GestureHandlerRootView>
