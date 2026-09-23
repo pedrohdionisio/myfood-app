@@ -144,7 +144,7 @@ Fluxo do cliente (sessão, endereços, descoberta, carrinho, checkout, Pix e ped
 entregador prontos. Verificado com typecheck + lint
 — o app **nunca foi executado**.
 
-Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp), `DriverStack` (Deliveries/Delivery)
+Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp/ForgotPassword/ResetPassword), `DriverStack` (Deliveries/Delivery)
 ou `AppStack` pela sessão e pelo perfil. O `SignIn` tem o seletor `Sou cliente / Sou entregador`. O
 `AppStack`
 tem `AppTabNavigator` (Início · Pedidos · Conta) mais `Restaurant`, `Checkout`, `Payment`, `Order`,
@@ -161,6 +161,8 @@ O que existe e serve de molde:
 - `data/contexts/AuthProvider/` + `data/libs/AuthTokensManager.ts` — sessão no `expo-secure-store`
 - `data/modules/auth/` — molde de módulo com mutation
 - `data/modules/driverAuth/` — login, refresh e `me` do entregador, no pool de `restaurant-users`
+- `data/modules/passwordRecovery/` — pedir código e trocar a senha; o service recebe o perfil e
+  escolhe o pool, então quem chama não ramifica
 - `data/modules/review/` — avaliar pedido, ler a avaliação do pedido (o 404 de "ainda não
   avaliado" vira `null` no service) e a lista pública paginada do restaurante
 - `data/modules/delivery/` — `/me/deliveries` (polling de 30s), confirmar com código e entrega
@@ -256,7 +258,6 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
 - sem push notification
-- sem recuperação de senha, nos dois perfis
 - sem asset: `app.json` não declara ícone nem splash
 - `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
 

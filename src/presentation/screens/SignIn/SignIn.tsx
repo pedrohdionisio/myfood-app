@@ -7,8 +7,13 @@ import { SignInHeader } from './components/SignInHeader/SignInHeader';
 import { useSignInController } from './useSignInController';
 
 export function SignIn() {
-	const { profile, shouldShowSignUp, handleSelectProfile, handleGoToSignUp } =
-		useSignInController();
+	const {
+		profile,
+		shouldShowSignUp,
+		handleSelectProfile,
+		handleGoToForgotPassword,
+		handleGoToSignUp
+	} = useSignInController();
 
 	return (
 		<ScreenLayout className='justify-center'>
@@ -20,6 +25,17 @@ export function SignIn() {
 			/>
 
 			<SignInForm profile={profile} />
+
+			<Pressable
+				accessibilityRole='link'
+				className='mt-4 self-center active:opacity-80'
+				hitSlop={8}
+				onPress={handleGoToForgotPassword}
+			>
+				<AppText color='brand' size='bodySm' weight='medium'>
+					Esqueci minha senha
+				</AppText>
+			</Pressable>
 
 			{shouldShowSignUp ? (
 				<View className='mt-6 flex-row items-center justify-center gap-1'>

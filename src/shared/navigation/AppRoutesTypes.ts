@@ -1,6 +1,10 @@
+import type { AuthProfile } from 'shared/constants/authProfiles';
+
 export type AuthRoutesParamList = {
 	SignIn: undefined;
 	SignUp: undefined;
+	ForgotPassword: { profile: AuthProfile };
+	ResetPassword: { profile: AuthProfile; email: string };
 };
 
 export type AppTabRoutesParamList = {

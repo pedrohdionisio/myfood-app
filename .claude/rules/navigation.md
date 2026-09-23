@@ -17,7 +17,7 @@ no topo, que competiria com `presentation/screens/` e quebraria a regra de que r
 ```
 src/shared/navigation/
 ├── AppRoutesTypes.ts    # os param lists e a augmentação global
-├── AuthStack.tsx        # SignIn, SignUp
+├── AuthStack.tsx        # SignIn, SignUp, ForgotPassword, ResetPassword
 ├── AppStack.tsx         # sessão de cliente
 ├── DriverStack.tsx      # sessão de entregador: Deliveries, Delivery
 └── Navigation.tsx       # NavigationContainer + a escolha entre os três

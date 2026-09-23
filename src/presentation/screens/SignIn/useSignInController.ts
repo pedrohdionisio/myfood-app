@@ -11,6 +11,10 @@ export function useSignInController() {
 		setProfile(selectedProfile);
 	}
 
+	function handleGoToForgotPassword() {
+		navigation.navigate('ForgotPassword', { profile });
+	}
+
 	function handleGoToSignUp() {
 		navigation.navigate('SignUp');
 	}
@@ -19,6 +23,7 @@ export function useSignInController() {
 		profile,
 		shouldShowSignUp: profile === 'customer',
 		handleSelectProfile,
+		handleGoToForgotPassword,
 		handleGoToSignUp
 	};
 }
