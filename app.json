@@ -20,6 +20,19 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": ["expo-font", "expo-secure-store", "expo-notifications"]
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-logo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FEFCFC"
+        }
+      ]
+    ]
   }
 }

@@ -258,8 +258,20 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
-- sem asset: `app.json` não declara ícone nem splash
+- sem ícone: o `app.json` declara só a splash (ver abaixo)
 - `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
+
+### Splash
+
+A splash é nativa, pelo plugin `expo-splash-screen` no `app.json`: o logo em
+`assets/splash-logo.png` sobre `#FEFCFC`, o mesmo valor do token `background`, para a troca
+para a primeira tela não piscar. O PNG é gerado do `src/shared/assets/black-red-logo.svg` — o SVG
+é a fonte; mudou o logo, gere o PNG de novo.
+
+O `App.tsx` segura a splash (`preventAutoHideAsync`) e quem a solta é o `onReady` do
+`NavigationContainer`. Ele só monta depois das fontes e da sessão restaurada — `App` e
+`AuthProvider` devolvem `null` até lá —, então a splash cobre as duas esperas. Por isso uma falha
+ao carregar fonte também libera a tela: sem isso a splash ficaria para sempre.
 
 ### Push: o código existe, o ambiente não
 
@@ -289,9 +301,8 @@ dev build (`expo-dev-client`, que não está no projeto), aparelho físico, `ext
 - **Falha de rede no boot desloga visualmente.** `restoreSession` faz `getMe().catch(() => null)`.
 - **Não há teste automatizado.** O interceptor de 401 nunca foi exercitado.
 - **Telefone sem máscara** no cadastro, e **senha sem revelar**.
-- **Não dá para buscar por prato.** A aba de busca saiu e com ela o consumo de `/discovery/search`,
-  que era o único jeito de achar restaurante pelo que ele vende. Voltar exige `q` casar com produto
-  na API, ou uma tela dedicada.
+- **Busca só por nome de restaurante, por decisão.** Buscar por prato foi descartado; o
+  `/discovery/search` segue na API sem consumidor no app.
 - **Complementos não existem.** A sheet do produto tem quantidade e observação; os grupos de opção
   do restaurante (`option_groups` na API) não são lidos nem enviados.
 - **O Pix não tem contagem regressiva.** A tela mostra o horário de expiração e depende do polling

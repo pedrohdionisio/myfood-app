@@ -11,6 +11,7 @@ import { queryClient } from 'data/config/queryClient';
 import { AuthProvider } from 'data/contexts/AuthProvider/AuthProvider';
 import { CartProvider } from 'data/contexts/CartProvider/CartProvider';
 import { PushNotificationsManager } from 'data/libs/PushNotificationsManager';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,16 +19,17 @@ import { Navigation } from 'shared/navigation/Navigation';
 import './src/styles/global.css';
 
 PushNotificationsManager.configure();
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-	const [isFontsLoaded] = useFonts({
+	const [isFontsLoaded, fontsError] = useFonts({
 		Inter_400Regular,
 		Inter_500Medium,
 		Inter_600SemiBold,
 		Inter_700Bold
 	});
 
-	if (!isFontsLoaded) {
+	if (!isFontsLoaded && !fontsError) {
 		return null;
 	}
 

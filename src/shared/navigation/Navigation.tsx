@@ -1,5 +1,6 @@
 import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native';
 import { useAuth } from 'data/contexts/AuthProvider/AuthProvider';
+import * as SplashScreen from 'expo-splash-screen';
 import { useState } from 'react';
 import { AppStack } from './AppStack';
 import { AuthStack } from './AuthStack';
@@ -20,8 +21,13 @@ export function Navigation() {
 
 	useOpenNotificationTarget({ navigationRef, profile, isNavigationReady });
 
+	function handleReady() {
+		setIsNavigationReady(true);
+		SplashScreen.hideAsync();
+	}
+
 	return (
-		<NavigationContainer onReady={() => setIsNavigationReady(true)} ref={navigationRef}>
+		<NavigationContainer onReady={handleReady} ref={navigationRef}>
 			{signedIn ? <SignedInStack /> : <AuthStack />}
 		</NavigationContainer>
 	);
