@@ -6,6 +6,8 @@ import { useGetPayment } from 'data/modules/payment/useCases/getPayment/useGetPa
 import * as Clipboard from 'expo-clipboard';
 import { useEffect, useState } from 'react';
 import type { AppRoutesParamList } from 'shared/navigation/AppRoutesTypes';
+import { useRemainingTime } from './hooks/useRemainingTime';
+import { formatRemainingTime } from './utils/formatRemainingTime';
 
 export function usePaymentController() {
 	const navigation = useNavigation<NativeStackNavigationProp<AppRoutesParamList>>();
@@ -17,6 +19,7 @@ export function usePaymentController() {
 
 	const [createError, setCreateError] = useState<unknown>(null);
 	const [hasCopied, setHasCopied] = useState(false);
+	const remainingMs = useRemainingTime(payment?.expiresAt ?? null);
 
 	useEffect(() => {
 		createPixPayment(orderId).catch(setCreateError);
@@ -42,10 +45,18 @@ export function usePaymentController() {
 	}
 
 	const error = createError ?? paymentError;
+	const isExpired = remainingMs === 0;
 
 	return {
 		payment,
 		hasCopied,
+		isExpired,
+		expirationLabel:
+			remainingMs === null
+				? ''
+				: isExpired
+					? 'O código expirou. Estamos confirmando o pedido.'
+					: `O código expira em ${formatRemainingTime(remainingMs)}`,
 		isLoadingPayment: isCreatingPixPayment || (!payment && !error),
 		errorMessage: error ? getApiErrorMessage(error) : '',
 		handleCopyCode,

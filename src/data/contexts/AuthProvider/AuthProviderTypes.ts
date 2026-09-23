@@ -1,5 +1,6 @@
 import type { IAuthSessionResponse } from 'data/modules/auth/types/AuthTypes';
 import type { IDriverSessionResponse } from 'data/modules/driverAuth/types/DriverAuthTypes';
+import type { IUpdatedProfile } from 'data/modules/profile/types/ProfileTypes';
 import type { AuthProfile } from 'shared/constants/authProfiles';
 import type { ICustomer } from 'shared/entities/ICustomer';
 import type { IDriver } from 'shared/entities/IDriver';
@@ -13,7 +14,10 @@ export interface IAuthContextValue {
 	customer: ICustomer | null;
 	driver: IDriver | null;
 	signedIn: boolean;
+	isSessionUnavailable: boolean;
+	retryRestoreSession: () => Promise<void>;
 	startCustomerSession: (response: IAuthSessionResponse) => Promise<void>;
 	startDriverSession: (response: IDriverSessionResponse) => Promise<void>;
+	applyUpdatedProfile: (profile: IUpdatedProfile) => void;
 	signOut: () => Promise<void>;
 }

@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Addresses } from 'presentation/screens/Addresses/Addresses';
 import { AddressForm } from 'presentation/screens/AddressForm/AddressForm';
 import { Checkout } from 'presentation/screens/Checkout/Checkout';
+import { EditProfile } from 'presentation/screens/EditProfile/EditProfile';
 import { Order } from 'presentation/screens/Order/Order';
 import { OrderReview } from 'presentation/screens/OrderReview/OrderReview';
 import { Payment } from 'presentation/screens/Payment/Payment';
@@ -24,6 +25,7 @@ export function AppStack() {
 			<Stack.Screen component={RestaurantReviews} name='RestaurantReviews' />
 			<Stack.Screen component={Addresses} name='Addresses' />
 			<Stack.Screen component={AddressForm} name='AddressForm' />
+			<Stack.Screen component={EditProfile} name='EditProfile' />
 		</Stack.Navigator>
 	);
 }

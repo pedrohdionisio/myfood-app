@@ -15,11 +15,14 @@ export function Input<
 	name,
 	label,
 	className,
+	mask,
+	endAdornment,
 	...props
 }: IInputProps<TFieldValues, TName, TTransformedValues>) {
 	const { value, errorMessage, handleChangeText, handleBlur } = useInputController({
 		control,
-		name
+		name,
+		mask
 	});
 
 	return (
@@ -28,18 +31,23 @@ export function Input<
 				{label}
 			</AppText>
 
-			<TextInput
-				className={cn(
-					'h-12 rounded-xl border bg-white px-4 font-inter-regular text-body-md text-gray-900',
-					errorMessage ? 'border-destructive' : 'border-gray-200',
-					className
-				)}
-				onBlur={handleBlur}
-				onChangeText={handleChangeText}
-				placeholderTextColor={COLORS.gray[400]}
-				value={value}
-				{...props}
-			/>
+			<View className='justify-center'>
+				<TextInput
+					className={cn(
+						'h-12 rounded-xl border bg-white px-4 font-inter-regular text-body-md text-gray-900',
+						errorMessage ? 'border-destructive' : 'border-gray-200',
+						!!endAdornment && 'pr-12',
+						className
+					)}
+					onBlur={handleBlur}
+					onChangeText={handleChangeText}
+					placeholderTextColor={COLORS.gray[400]}
+					value={value}
+					{...props}
+				/>
+
+				{!!endAdornment && <View className='absolute right-2'>{endAdornment}</View>}
+			</View>
 
 			{!!errorMessage && (
 				<AppText color='destructive' size='bodySm'>

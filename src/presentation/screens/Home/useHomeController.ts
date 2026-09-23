@@ -2,12 +2,16 @@ import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from '@react-navigation/native';
 import { getApiErrorMessage, getApiErrorReason } from 'data/config/apiError';
 import { useListCuisineCategories } from 'data/modules/cuisine/useCases/listCuisineCategories/useListCuisineCategories';
+import { useListAddresses } from 'data/modules/customerAddress/useCases/listAddresses/useListAddresses';
+import { useSetDefaultAddress } from 'data/modules/customerAddress/useCases/setDefaultAddress/useSetDefaultAddress';
 import { useListRestaurants } from 'data/modules/discovery/useCases/listRestaurants/useListRestaurants';
 import { useRef, useState } from 'react';
+import { Alert } from 'react-native';
 import { useDebouncedValue } from 'shared/hooks/useDebouncedValue';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type {
 	IHandleOpenRestaurantParams,
+	IHandleSelectAddressParams,
 	IHandleSelectCuisineParams,
 	IHandleToggleIncludeClosedParams,
 	RestaurantsListState
@@ -20,6 +24,7 @@ export function useHomeController() {
 	const navigation = useNavigation();
 	const contentPadding = useScreenPadding();
 	const filtersSheetRef = useRef<BottomSheetModal>(null);
+	const addressSheetRef = useRef<BottomSheetModal>(null);
 
 	const [query, setQuery] = useState('');
 	const [selectedCuisineSlug, setSelectedCuisineSlug] = useState<string | null>(null);
@@ -27,6 +32,10 @@ export function useHomeController() {
 	const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
 
 	const { cuisineCategories } = useListCuisineCategories();
+	const { addresses, isLoadingAddresses } = useListAddresses();
+	const { setDefaultAddress } = useSetDefaultAddress();
+
+	const deliveryAddress = addresses[0] ?? null;
 
 	const {
 		restaurants,
@@ -39,7 +48,9 @@ export function useHomeController() {
 	} = useListRestaurants({
 		term: debouncedQuery,
 		cuisineSlug: selectedCuisineSlug,
-		includeClosed
+		includeClosed,
+		addressId: deliveryAddress?.id ?? null,
+		isEnabled: !isLoadingAddresses
 	});
 
 	const isFiltering = debouncedQuery.trim().length > 0 || selectedCuisineSlug !== null;
@@ -77,6 +88,29 @@ export function useHomeController() {
 		filtersSheetRef.current?.present();
 	}
 
+	function handleOpenAddresses() {
+		addressSheetRef.current?.present();
+	}
+
+	async function handleSelectAddress({ addressId }: IHandleSelectAddressParams) {
+		addressSheetRef.current?.dismiss();
+
+		if (addressId === deliveryAddress?.id) {
+			return;
+		}
+
+		try {
+			await setDefaultAddress(addressId);
+		} catch (error) {
+			Alert.alert('Não foi possível trocar o endereço', getApiErrorMessage(error));
+		}
+	}
+
+	function handleManageAddresses() {
+		addressSheetRef.current?.dismiss();
+		navigation.navigate('Addresses');
+	}
+
 	function handleRetry() {
 		refetchRestaurants();
 	}
@@ -100,6 +134,9 @@ export function useHomeController() {
 		cuisineCategories,
 		contentPadding,
 		filtersSheetRef,
+		addressSheetRef,
+		addresses,
+		deliveryAddress,
 		query,
 		selectedCuisineSlug,
 		includeClosed,
@@ -111,6 +148,9 @@ export function useHomeController() {
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
 		handleOpenFilters,
+		handleOpenAddresses,
+		handleSelectAddress,
+		handleManageAddresses,
 		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,

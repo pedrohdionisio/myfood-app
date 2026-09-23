@@ -42,6 +42,16 @@ export function getApiErrorCode(error: unknown): ApiErrorCode | null {
 	return code;
 }
 
+export function isRejectedByApi(error: unknown): boolean {
+	if (!isAxiosError(error) || !error.response) {
+		return false;
+	}
+
+	const { status } = error.response;
+
+	return status >= 400 && status < 500;
+}
+
 export function getApiErrorMessage(error: unknown): string {
 	if (!isAxiosError<IApiErrorBody>(error)) {
 		return FALLBACK_MESSAGE;

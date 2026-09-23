@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { useAccountController } from './useAccountController';
 
 export function Account() {
-	const { customerName, customerEmail, handleGoToAddresses, handleSignOut } =
+	const { customerName, customerEmail, handleGoToAddresses, handleGoToEditProfile, handleSignOut } =
 		useAccountController();
 
 	return (
@@ -21,6 +21,8 @@ export function Account() {
 			</View>
 
 			<View className='gap-3'>
+				<Button onPress={handleGoToEditProfile} title='Editar perfil' variant='outline' />
+
 				<Button onPress={handleGoToAddresses} title='Meus endereços' variant='outline' />
 
 				<Button onPress={handleSignOut} title='Sair' variant='ghost' />

@@ -38,6 +38,10 @@ export function useDeliveriesController() {
 		refetchDeliveries();
 	}
 
+	function handleEditProfile() {
+		navigation.navigate('EditProfile');
+	}
+
 	async function handleSignOut() {
 		await signOut();
 	}
@@ -51,6 +55,7 @@ export function useDeliveriesController() {
 		isRefreshing: isRefetchingDeliveries,
 		handleOpenDelivery,
 		handleRefresh,
+		handleEditProfile,
 		handleSignOut
 	};
 }

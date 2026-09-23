@@ -5,12 +5,14 @@ import {
 	setAccessToken,
 	setSessionHandlers
 } from 'data/config/api';
+import { isRejectedByApi } from 'data/config/apiError';
 import { AuthTokensManager, type IAuthTokens } from 'data/libs/AuthTokensManager';
 import { PushNotificationsManager } from 'data/libs/PushNotificationsManager';
 import { AuthService } from 'data/modules/auth/services/AuthService';
 import type { IAuthSessionResponse } from 'data/modules/auth/types/AuthTypes';
 import { DriverAuthService } from 'data/modules/driverAuth/services/DriverAuthService';
 import type { IDriverSessionResponse } from 'data/modules/driverAuth/types/DriverAuthTypes';
+import type { IUpdatedProfile } from 'data/modules/profile/types/ProfileTypes';
 import { PushTokenService } from 'data/modules/pushToken/services/PushTokenService';
 import type { IUnregisterPushTokenPayload } from 'data/modules/pushToken/types/PushTokenTypes';
 import {
@@ -43,6 +45,7 @@ async function fetchSignedInUser(profile: AuthProfile): Promise<SignedInUser> {
 export function AuthProvider({ children }: PropsWithChildren) {
 	const [user, setUser] = useState<SignedInUser | null>(null);
 	const [isRestoringSession, setIsRestoringSession] = useState(true);
+	const [isSessionUnavailable, setIsSessionUnavailable] = useState(false);
 	const pushRegistrationRef = useRef<IUnregisterPushTokenPayload | null>(null);
 	const queryClient = useQueryClient();
 	const profile = user?.profile ?? null;
@@ -60,6 +63,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		removeAccessToken();
 		queryClient.clear();
 		setUser(null);
+		setIsSessionUnavailable(false);
 
 		await AuthTokensManager.clear();
 	}, [queryClient]);
@@ -82,11 +86,46 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
 			await AuthTokensManager.save({ ...stored, accessToken });
 		} catch (error) {
-			await signOut();
+			if (isRejectedByApi(error)) {
+				await signOut();
+			}
 
 			throw error;
 		}
 	}, [signOut]);
+
+	const applyUpdatedProfile = useCallback(({ name, phone }: IUpdatedProfile) => {
+		setUser((current) => {
+			if (!current) {
+				return current;
+			}
+
+			return current.profile === 'driver'
+				? { profile: 'driver', driver: { ...current.driver, name, phone } }
+				: { profile: 'customer', customer: { ...current.customer, name, phone } };
+		});
+	}, []);
+
+	const loadSignedInUser = useCallback(async (currentProfile: AuthProfile) => {
+		try {
+			setUser(await fetchSignedInUser(currentProfile));
+			setIsSessionUnavailable(false);
+		} catch {
+			setIsSessionUnavailable((await AuthTokensManager.load()) !== null);
+		}
+	}, []);
+
+	const retryRestoreSession = useCallback(async () => {
+		const tokens = await AuthTokensManager.load();
+
+		if (!tokens) {
+			setIsSessionUnavailable(false);
+
+			return;
+		}
+
+		await loadSignedInUser(tokens.profile);
+	}, [loadSignedInUser]);
 
 	const activateSession = useCallback(
 		async (tokens: IAuthTokens) => {
@@ -130,17 +169,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
 			if (tokens) {
 				await activateSession(tokens);
-
-				const restoredUser = await fetchSignedInUser(tokens.profile).catch(() => null);
-
-				setUser(restoredUser);
+				await loadSignedInUser(tokens.profile);
 			}
 
 			setIsRestoringSession(false);
 		}
 
 		restoreSession();
-	}, [activateSession]);
+	}, [activateSession, loadSignedInUser]);
 
 	useEffect(() => {
 		if (!profile) {
@@ -188,8 +224,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
 				customer: user?.profile === 'customer' ? user.customer : null,
 				driver: user?.profile === 'driver' ? user.driver : null,
 				signedIn: !!user,
+				isSessionUnavailable,
+				retryRestoreSession,
 				startCustomerSession,
 				startDriverSession,
+				applyUpdatedProfile,
 				signOut
 			}}
 		>

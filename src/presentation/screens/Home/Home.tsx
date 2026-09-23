@@ -1,3 +1,4 @@
+import { AddressSheet } from 'presentation/components/AddressSheet/AddressSheet';
 import { RestaurantCard } from 'presentation/components/RestaurantCard/RestaurantCard';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
@@ -12,6 +13,9 @@ export function Home() {
 		cuisineCategories,
 		contentPadding,
 		filtersSheetRef,
+		addressSheetRef,
+		addresses,
+		deliveryAddress,
 		query,
 		selectedCuisineSlug,
 		includeClosed,
@@ -23,6 +27,9 @@ export function Home() {
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
 		handleOpenFilters,
+		handleOpenAddresses,
+		handleSelectAddress,
+		handleManageAddresses,
 		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,
@@ -48,8 +55,10 @@ export function Home() {
 				ListHeaderComponent={
 					<DiscoveryHeader
 						cuisineCategories={cuisineCategories}
+						deliveryAddress={deliveryAddress}
 						hasActiveFilters={hasActiveFilters}
 						onChangeQuery={handleChangeQuery}
+						onOpenAddresses={handleOpenAddresses}
 						onOpenFilters={handleOpenFilters}
 						onSelectCuisine={(cuisineSlug) => handleSelectCuisine({ cuisineSlug })}
 						query={query}
@@ -76,6 +85,14 @@ export function Home() {
 				includeClosed={includeClosed}
 				onToggleIncludeClosed={(value) => handleToggleIncludeClosed({ includeClosed: value })}
 				sheetRef={filtersSheetRef}
+			/>
+
+			<AddressSheet
+				addresses={addresses}
+				onManageAddresses={handleManageAddresses}
+				onSelectAddress={(addressId) => handleSelectAddress({ addressId })}
+				selectedAddressId={deliveryAddress?.id ?? null}
+				sheetRef={addressSheetRef}
 			/>
 		</View>
 	);

@@ -164,6 +164,8 @@ O que existe e serve de molde:
 - `data/modules/passwordRecovery/` — pedir código e trocar a senha; o service recebe o perfil e
   escolhe o pool, então quem chama não ramifica
 - `data/libs/PushNotificationsManager.ts` + `data/modules/pushToken/` — push; ver a seção abaixo
+- `data/modules/profile/` — editar nome e telefone, na rota do perfil (`PATCH /customers/me` ou
+  `/restaurant-users/me`); o `AuthProvider.applyUpdatedProfile` atualiza a sessão em memória
 - `data/modules/review/` — avaliar pedido, ler a avaliação do pedido (o 404 de "ainda não
   avaliado" vira `null` no service) e a lista pública paginada do restaurante
 - `data/modules/delivery/` — `/me/deliveries` (polling de 30s), confirmar com código e entrega
@@ -179,14 +181,15 @@ O que existe e serve de molde:
 - `data/modules/address/` — consulta de CEP no ViaCEP, com mapper; espelha o módulo homônimo do
   dashboard
 - `presentation/components/` — `AppText`, `AppImage`, `Button`, `Input`, `Skeleton`, `EmptyState`,
-  `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`, `StarRating`, `ReviewCard`
+  `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`, `StarRating`, `ReviewCard`, `PasswordInput`, `AddressSheet`
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
   lista paginada com os estados), `Restaurant` (banner, logo, cardápio por categoria), `Account`,
   `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP), `Checkout`, `Payment`
   (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega),
   `OrderReview` (estrelas + comentário), `RestaurantReviews` (aberta pela nota no cabeçalho do
-  restaurante), `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código)
+  restaurante), `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código),
+  `EditProfile` (nos dois stacks) e `SessionUnavailable`
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `IDriver`, `IDelivery`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
@@ -292,28 +295,44 @@ dev build (`expo-dev-client`, que não está no projeto), aparelho físico, `ext
   ref do `NavigationContainer`. Como o `Navigation`, ele importa de `data/` — a exceção de camada
   que a navegação já tinha.
 
+### Endereço de entrega: o padrão é o endereço atual
+
+Não existe "endereço selecionado" guardado no app. A Home mostra `Entregar em` com o primeiro da
+listagem, que a API ordena com o padrão na frente, e trocar no `AddressSheet` chama
+`setDefaultAddress`. A listagem se reordena, o `addressId` que a vitrine envia muda e, como ele
+está na query key, a lista recarrega sozinha. O checkout também pega o primeiro, então segue a
+mesma escolha sem código a mais. A vitrine só dispara depois de os endereços carregarem, para não
+buscar duas vezes.
+
+### Sessão: recusada não é o mesmo que indisponível
+
+`refreshAccessToken` só encerra a sessão quando a API **recusa** o refresh (`isRejectedByApi`,
+status 4xx). Rede fora e 5xx repassam o erro sem deslogar. No boot, se o `getMe` falha e os tokens
+continuam salvos, a sessão está intacta e o servidor é que não respondeu: o `Navigation` mostra a
+`SessionUnavailable` (tentar de novo / sair), num stack próprio para o `onReady` soltar a splash.
+Se o interceptor já tiver encerrado a sessão, os tokens sumiram e o app cai no login.
+
+### Formulário: máscara e senha
+
+O `Input` aceita `mask` (aplicada no `onChangeText`) e `endAdornment`. Senha usa o
+`PasswordInput`, que é o `Input` com o botão de revelar. Telefone usa `maskPhone`; quem limpa
+para dígitos antes de enviar é o schema, com `onlyDigits`.
+
 ### Pendências conhecidas
 
 - **Login obrigatório na entrada, por decisão.** Trocar para o modelo iFood é mudar `Navigation`.
 - **Card depende de borda, não de contraste.** `bg-background` (`#FEFCFC`) e o `bg-white` do card
   diferem em 3 valores por canal; quem separa os dois é a `border-gray-200`.
 - **`Skeleton` não pulsa.** É um bloco cinza estático de propósito — ver a regra de design system.
-- **Falha de rede no boot desloga visualmente.** `restoreSession` faz `getMe().catch(() => null)`.
 - **Não há teste automatizado.** O interceptor de 401 nunca foi exercitado.
-- **Telefone sem máscara** no cadastro, e **senha sem revelar**.
 - **Busca só por nome de restaurante, por decisão.** Buscar por prato foi descartado; o
   `/discovery/search` segue na API sem consumidor no app.
 - **Complementos não existem.** A sheet do produto tem quantidade e observação; os grupos de opção
   do restaurante (`option_groups` na API) não são lidos nem enviados.
-- **O Pix não tem contagem regressiva.** A tela mostra o horário de expiração e depende do polling
-  para descobrir que expirou.
 - **Pagamento nunca rodou de verdade.** O plano da `myfood-api` marca a Phase 10 como escrita e não
   verificada — este app é o primeiro a exercitar o caminho.
 - **O filtro só tem um item.** A sheet de filtros existe com `Mostrar fechados` apenas; ela foi
   desenhada para receber mais (faixa de preço, entrega grátis, avaliação) quando a API tiver.
-- **A lista de restaurantes ignora `addressId`.** A API aceita o parâmetro e cai no primeiro
-  endereço do cliente quando ele não vem. Trocar de endereço na Home exige passar `addressId` e
-  colocá-lo na query key.
 
 Quando uma dessas lacunas for preenchida, atualize esta seção. Documentação que ficou falsa
 desencaminha a próxima pessoa.

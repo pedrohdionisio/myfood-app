@@ -1,6 +1,7 @@
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { Input } from 'presentation/components/Input/Input';
+import { PasswordInput } from 'presentation/components/PasswordInput/PasswordInput';
 import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
 import { View } from 'react-native';
 import { useResetPasswordController } from './useResetPasswordController';
@@ -40,24 +41,20 @@ export function ResetPassword() {
 					placeholder='Código de 6 dígitos'
 				/>
 
-				<Input
-					autoCapitalize='none'
+				<PasswordInput
 					autoComplete='new-password'
 					control={control}
 					label='Nova senha'
 					name='password'
 					placeholder='Mínimo de 8 caracteres'
-					secureTextEntry
 				/>
 
-				<Input
-					autoCapitalize='none'
+				<PasswordInput
 					autoComplete='new-password'
 					control={control}
 					label='Confirme a nova senha'
 					name='passwordConfirmation'
 					placeholder='Repita a nova senha'
-					secureTextEntry
 				/>
 
 				{!!apiErrorMessage && (

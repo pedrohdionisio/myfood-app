@@ -23,11 +23,17 @@ export type AppRoutesParamList = {
 	RestaurantReviews: { slug: string; tradeName: string };
 	Addresses: undefined;
 	AddressForm: { addressId?: string };
+	EditProfile: undefined;
 };
 
 export type DriverRoutesParamList = {
 	Deliveries: undefined;
 	Delivery: { orderId: string };
+	EditProfile: undefined;
+};
+
+export type SessionRoutesParamList = {
+	SessionUnavailable: undefined;
 };
 
 declare global {
@@ -36,6 +42,7 @@ declare global {
 			extends AuthRoutesParamList,
 				AppTabRoutesParamList,
 				AppRoutesParamList,
-				DriverRoutesParamList {}
+				DriverRoutesParamList,
+				SessionRoutesParamList {}
 	}
 }

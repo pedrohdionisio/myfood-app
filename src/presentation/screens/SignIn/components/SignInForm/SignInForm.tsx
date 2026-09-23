@@ -1,6 +1,7 @@
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { Input } from 'presentation/components/Input/Input';
+import { PasswordInput } from 'presentation/components/PasswordInput/PasswordInput';
 import { View } from 'react-native';
 import type { ISignInFormProps } from './SignInFormTypes';
 import { useSignInFormController } from './useSignInFormController';
@@ -22,14 +23,12 @@ export function SignInForm({ profile }: ISignInFormProps) {
 				placeholder='Seu e-mail'
 			/>
 
-			<Input
-				autoCapitalize='none'
+			<PasswordInput
 				autoComplete='current-password'
 				control={control}
 				label='Senha'
 				name='password'
 				placeholder='Informe sua senha'
-				secureTextEntry
 			/>
 
 			{!!apiErrorMessage && (

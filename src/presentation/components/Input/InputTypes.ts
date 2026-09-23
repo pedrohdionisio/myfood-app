@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { Control, FieldPathByValue, FieldValues } from 'react-hook-form';
 import type { TextInputProps } from 'react-native';
 
@@ -10,6 +11,8 @@ export interface IInputProps<
 	name: TName;
 	label: string;
 	className?: string;
+	mask?: (value: string) => string;
+	endAdornment?: ReactNode;
 }
 
 export interface IUseInputControllerParams<
@@ -19,4 +22,5 @@ export interface IUseInputControllerParams<
 > {
 	control: Control<TFieldValues, unknown, TTransformedValues>;
 	name: TName;
+	mask?: (value: string) => string;
 }

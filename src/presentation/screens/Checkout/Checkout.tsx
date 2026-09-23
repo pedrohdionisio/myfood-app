@@ -1,3 +1,4 @@
+import { AddressSheet } from 'presentation/components/AddressSheet/AddressSheet';
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { EmptyState } from 'presentation/components/EmptyState/EmptyState';
@@ -7,7 +8,6 @@ import { TextInput, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from 'shared/constants/orders';
 import { formatPrice } from 'shared/utils/formatPrice';
-import { AddressSheet } from './components/AddressSheet/AddressSheet';
 import { CheckoutAddressCard } from './components/CheckoutAddressCard/CheckoutAddressCard';
 import { CheckoutItemRow } from './components/CheckoutItemRow/CheckoutItemRow';
 import { CheckoutSummary } from './components/CheckoutSummary/CheckoutSummary';

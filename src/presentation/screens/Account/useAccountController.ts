@@ -9,6 +9,10 @@ export function useAccountController() {
 		navigation.navigate('Addresses');
 	}
 
+	function handleGoToEditProfile() {
+		navigation.navigate('EditProfile');
+	}
+
 	async function handleSignOut() {
 		await signOut();
 	}
@@ -17,6 +21,7 @@ export function useAccountController() {
 		customerName: customer?.name ?? '',
 		customerEmail: customer?.email ?? '',
 		handleGoToAddresses,
+		handleGoToEditProfile,
 		handleSignOut
 	};
 }

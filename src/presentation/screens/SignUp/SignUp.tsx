@@ -1,8 +1,10 @@
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { Input } from 'presentation/components/Input/Input';
+import { PasswordInput } from 'presentation/components/PasswordInput/PasswordInput';
 import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
 import { View } from 'react-native';
+import { maskPhone } from 'shared/utils/maskPhone';
 import { useSignUpController } from './useSignUpController';
 
 export function SignUp() {
@@ -43,18 +45,17 @@ export function SignUp() {
 					control={control}
 					keyboardType='phone-pad'
 					label='Telefone (opcional)'
+					mask={maskPhone}
 					name='phone'
 					placeholder='DDD + número'
 				/>
 
-				<Input
-					autoCapitalize='none'
+				<PasswordInput
 					autoComplete='new-password'
 					control={control}
 					label='Senha'
 					name='password'
 					placeholder='Mínimo de 8 caracteres'
-					secureTextEntry
 				/>
 
 				{!!apiErrorMessage && (

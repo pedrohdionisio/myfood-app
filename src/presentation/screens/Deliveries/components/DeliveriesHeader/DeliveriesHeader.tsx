@@ -2,7 +2,7 @@ import { AppText } from 'presentation/components/AppText/AppText';
 import { Pressable, View } from 'react-native';
 import type { IDeliveriesHeaderProps } from './DeliveriesHeaderTypes';
 
-export function DeliveriesHeader({ driverName, onSignOut }: IDeliveriesHeaderProps) {
+export function DeliveriesHeader({ driverName, onEditProfile, onSignOut }: IDeliveriesHeaderProps) {
 	return (
 		<View className='mb-4 flex-row items-start justify-between gap-4'>
 			<View className='flex-1 gap-1'>
@@ -15,16 +15,29 @@ export function DeliveriesHeader({ driverName, onSignOut }: IDeliveriesHeaderPro
 				</AppText>
 			</View>
 
-			<Pressable
-				accessibilityRole='button'
-				className='active:opacity-80'
-				hitSlop={12}
-				onPress={onSignOut}
-			>
-				<AppText color='brand' size='bodySm' weight='medium'>
-					Sair
-				</AppText>
-			</Pressable>
+			<View className='flex-row items-center gap-4'>
+				<Pressable
+					accessibilityRole='button'
+					className='active:opacity-80'
+					hitSlop={12}
+					onPress={onEditProfile}
+				>
+					<AppText color='brand' size='bodySm' weight='medium'>
+						Perfil
+					</AppText>
+				</Pressable>
+
+				<Pressable
+					accessibilityRole='button'
+					className='active:opacity-80'
+					hitSlop={12}
+					onPress={onSignOut}
+				>
+					<AppText color='brand' size='bodySm' weight='medium'>
+						Sair
+					</AppText>
+				</Pressable>
+			</View>
 		</View>
 	);
 }

@@ -1,0 +1,3 @@
+export const PROFILE_MUTATION_KEYS = {
+	UPDATE_PROFILE: 'UPDATE_PROFILE'
+} as const;

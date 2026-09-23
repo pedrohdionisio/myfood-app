@@ -8,20 +8,30 @@ const MIN_TERM_LENGTH = 2;
 export function useListRestaurants({
 	term,
 	cuisineSlug,
-	includeClosed
+	includeClosed,
+	addressId,
+	isEnabled
 }: IUseListRestaurantsParams) {
 	const searchTerm = term.trim().length >= MIN_TERM_LENGTH ? term.trim() : undefined;
 
 	const { data, isPending, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
 		useInfiniteQuery({
-			queryKey: [DISCOVERY_QUERY_KEYS.LIST_RESTAURANTS, searchTerm, cuisineSlug, includeClosed],
+			queryKey: [
+				DISCOVERY_QUERY_KEYS.LIST_RESTAURANTS,
+				addressId,
+				searchTerm,
+				cuisineSlug,
+				includeClosed
+			],
 			queryFn: ({ pageParam }) =>
 				DiscoveryService.listRestaurants({
 					page: pageParam,
 					q: searchTerm,
 					cuisineSlug: cuisineSlug ?? undefined,
-					includeClosed
+					includeClosed,
+					addressId: addressId ?? undefined
 				}),
+			enabled: isEnabled,
 			initialPageParam: 1,
 			getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.page + 1 : undefined)
 		});

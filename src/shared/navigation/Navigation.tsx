@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AppStack } from './AppStack';
 import { AuthStack } from './AuthStack';
 import { DriverStack } from './DriverStack';
+import { SessionUnavailableStack } from './SessionUnavailableStack';
 import { useOpenNotificationTarget } from './useOpenNotificationTarget';
 
 const navigationRef = createNavigationContainerRef<ReactNavigation.RootParamList>();
@@ -16,7 +17,7 @@ function SignedInStack() {
 }
 
 export function Navigation() {
-	const { signedIn, profile } = useAuth();
+	const { signedIn, profile, isSessionUnavailable } = useAuth();
 	const [isNavigationReady, setIsNavigationReady] = useState(false);
 
 	useOpenNotificationTarget({ navigationRef, profile, isNavigationReady });
@@ -28,7 +29,13 @@ export function Navigation() {
 
 	return (
 		<NavigationContainer onReady={handleReady} ref={navigationRef}>
-			{signedIn ? <SignedInStack /> : <AuthStack />}
+			{isSessionUnavailable ? (
+				<SessionUnavailableStack />
+			) : signedIn ? (
+				<SignedInStack />
+			) : (
+				<AuthStack />
+			)}
 		</NavigationContainer>
 	);
 }

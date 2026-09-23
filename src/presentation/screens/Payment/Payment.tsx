@@ -4,13 +4,20 @@ import { ErrorState } from 'presentation/components/ErrorState/ErrorState';
 import { Skeleton } from 'presentation/components/Skeleton/Skeleton';
 import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
 import { View } from 'react-native';
-import { formatDateTime } from 'shared/utils/formatDateTime';
 import { formatPrice } from 'shared/utils/formatPrice';
 import { usePaymentController } from './usePaymentController';
 
 export function Payment() {
-	const { payment, hasCopied, isLoadingPayment, errorMessage, handleCopyCode, handleGoToOrder } =
-		usePaymentController();
+	const {
+		payment,
+		hasCopied,
+		isExpired,
+		expirationLabel,
+		isLoadingPayment,
+		errorMessage,
+		handleCopyCode,
+		handleGoToOrder
+	} = usePaymentController();
 
 	return (
 		<ScreenLayout className='gap-6'>
@@ -44,8 +51,12 @@ export function Payment() {
 							{formatPrice(payment.amountCents)}
 						</AppText>
 
-						<AppText color='muted' size='bodySm'>
-							Código válido até {formatDateTime(payment.expiresAt)}
+						<AppText
+							color={isExpired ? 'destructive' : 'muted'}
+							size='bodySm'
+							weight={isExpired ? 'regular' : 'medium'}
+						>
+							{expirationLabel}
 						</AppText>
 					</View>
 

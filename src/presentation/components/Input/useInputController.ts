@@ -5,13 +5,17 @@ export function useInputController<
 	TFieldValues extends FieldValues,
 	TName extends FieldPathByValue<TFieldValues, string>,
 	TTransformedValues = TFieldValues
->({ control, name }: IUseInputControllerParams<TFieldValues, TName, TTransformedValues>) {
+>({ control, name, mask }: IUseInputControllerParams<TFieldValues, TName, TTransformedValues>) {
 	const { field, fieldState } = useController({ control, name });
+
+	function handleChangeText(text: string) {
+		field.onChange(mask ? mask(text) : text);
+	}
 
 	return {
 		value: field.value,
 		errorMessage: fieldState.error?.message,
-		handleChangeText: field.onChange,
+		handleChangeText,
 		handleBlur: field.onBlur
 	};
 }

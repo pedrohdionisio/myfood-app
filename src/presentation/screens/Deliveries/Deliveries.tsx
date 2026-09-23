@@ -15,6 +15,7 @@ export function Deliveries() {
 		isRefreshing,
 		handleOpenDelivery,
 		handleRefresh,
+		handleEditProfile,
 		handleSignOut
 	} = useDeliveriesController();
 
@@ -28,7 +29,13 @@ export function Deliveries() {
 						onRetry={handleRefresh}
 					/>
 				}
-				ListHeaderComponent={<DeliveriesHeader driverName={driverName} onSignOut={handleSignOut} />}
+				ListHeaderComponent={
+					<DeliveriesHeader
+						driverName={driverName}
+						onEditProfile={handleEditProfile}
+						onSignOut={handleSignOut}
+					/>
+				}
 				contentContainerClassName='gap-3 px-6'
 				contentContainerStyle={contentPadding}
 				data={deliveries}
