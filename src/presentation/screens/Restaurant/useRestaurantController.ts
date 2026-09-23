@@ -86,6 +86,15 @@ export function useRestaurantController() {
 		navigation.navigate('Checkout');
 	}
 
+	function handleOpenReviews() {
+		if (restaurant) {
+			navigation.navigate('RestaurantReviews', {
+				slug: restaurant.slug,
+				tradeName: restaurant.tradeName
+			});
+		}
+	}
+
 	function handleRetry() {
 		refetchRestaurant();
 		refetchMenu();
@@ -116,6 +125,7 @@ export function useRestaurantController() {
 		handleSelectProduct,
 		handleAddProduct,
 		handleGoToCheckout,
+		handleOpenReviews,
 		handleRetry,
 		handleGoBack
 	};

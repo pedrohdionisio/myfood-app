@@ -161,6 +161,8 @@ O que existe e serve de molde:
 - `data/contexts/AuthProvider/` + `data/libs/AuthTokensManager.ts` — sessão no `expo-secure-store`
 - `data/modules/auth/` — molde de módulo com mutation
 - `data/modules/driverAuth/` — login, refresh e `me` do entregador, no pool de `restaurant-users`
+- `data/modules/review/` — avaliar pedido, ler a avaliação do pedido (o 404 de "ainda não
+  avaliado" vira `null` no service) e a lista pública paginada do restaurante
 - `data/modules/delivery/` — `/me/deliveries` (polling de 30s), confirmar com código e entrega
   frustrada; o detalhe lê da listagem, porque a API não tem `GET` de uma entrega só
 - `data/modules/customerAddress/` — **molde de CRUD**: query + 4 mutations que invalidam a listagem,
@@ -174,13 +176,14 @@ O que existe e serve de molde:
 - `data/modules/address/` — consulta de CEP no ViaCEP, com mapper; espelha o módulo homônimo do
   dashboard
 - `presentation/components/` — `AppText`, `AppImage`, `Button`, `Input`, `Skeleton`, `EmptyState`,
-  `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`
+  `ErrorState`, `ScreenHeader`, `RestaurantCard`, `CustomTabBar`, `StarRating`, `ReviewCard`
 - `presentation/layouts/ScreenLayout/` — safe area + teclado + scroll, para tela **sem** lista
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
   lista paginada com os estados), `Restaurant` (banner, logo, cardápio por categoria), `Account`,
   `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP), `Checkout`, `Payment`
   (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega),
-  `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código)
+  `OrderReview` (estrelas + comentário), `RestaurantReviews` (aberta pela nota no cabeçalho do
+  restaurante), `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código)
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
 - `shared/entities/` — `ICustomer`, `IDriver`, `IDelivery`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
@@ -252,7 +255,7 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
-- sem avaliação e sem push notification
+- sem push notification
 - sem recuperação de senha, nos dois perfis
 - sem asset: `app.json` não declara ícone nem splash
 - `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
@@ -271,8 +274,6 @@ O que **não** existe ainda, e por isso não deve ser referenciado como se exist
   na API, ou uma tela dedicada.
 - **Complementos não existem.** A sheet do produto tem quantidade e observação; os grupos de opção
   do restaurante (`option_groups` na API) não são lidos nem enviados.
-- **Avaliação não foi feita.** `POST/GET /orders/:id/review` existem e a listagem já traz
-  `hasReview`, mas não há tela.
 - **O Pix não tem contagem regressiva.** A tela mostra o horário de expiração e depende do polling
   para descobrir que expirou.
 - **Pagamento nunca rodou de verdade.** O plano da `myfood-api` marca a Phase 10 como escrita e não

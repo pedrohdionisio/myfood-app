@@ -7,6 +7,7 @@ import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
 import { View } from 'react-native';
 import { OrderDeliveryCode } from './components/OrderDeliveryCode/OrderDeliveryCode';
 import { OrderItemsCard } from './components/OrderItemsCard/OrderItemsCard';
+import { OrderReviewSection } from './components/OrderReviewSection/OrderReviewSection';
 import { OrderStatusCard } from './components/OrderStatusCard/OrderStatusCard';
 import { useOrderController } from './useOrderController';
 
@@ -20,8 +21,13 @@ export function Order() {
 		canCancel,
 		shouldShowDeliveryCode,
 		shouldShowPayment,
+		shouldShowReview,
+		review,
+		isLoadingReview,
+		reviewErrorMessage,
 		handleCancel,
 		handleGoToPayment,
+		handleGoToReview,
 		handleRetry,
 		handleGoBack
 	} = useOrderController();
@@ -49,6 +55,15 @@ export function Order() {
 					{shouldShowPayment && <Button onPress={handleGoToPayment} title='Pagar com Pix' />}
 
 					{shouldShowDeliveryCode && <OrderDeliveryCode deliveryCode={order.deliveryCode} />}
+
+					{shouldShowReview && (
+						<OrderReviewSection
+							errorMessage={reviewErrorMessage}
+							isLoading={isLoadingReview}
+							onReview={handleGoToReview}
+							review={review}
+						/>
+					)}
 
 					<OrderItemsCard order={order} />
 

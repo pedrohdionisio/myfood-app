@@ -3,6 +3,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getApiErrorMessage } from 'data/config/apiError';
 import { useCancelOrder } from 'data/modules/order/useCases/cancelOrder/useCancelOrder';
 import { useGetOrder } from 'data/modules/order/useCases/getOrder/useGetOrder';
+import { useGetOrderReview } from 'data/modules/review/useCases/getOrderReview/useGetOrderReview';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import type { AppRoutesParamList } from 'shared/navigation/AppRoutesTypes';
@@ -15,6 +16,8 @@ export function useOrderController() {
 
 	const { order, isLoadingOrder, orderError, refetchOrder } = useGetOrder(orderId);
 	const { cancelOrder, isCancelingOrder } = useCancelOrder();
+	const isDelivered = order?.status === 'DELIVERED';
+	const { review, isLoadingReview, reviewError } = useGetOrderReview(isDelivered ? orderId : null);
 	const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
 
 	function handleCancel() {
@@ -40,6 +43,10 @@ export function useOrderController() {
 		navigation.navigate('Payment', { orderId });
 	}
 
+	function handleGoToReview() {
+		navigation.navigate('OrderReview', { orderId });
+	}
+
 	function handleRetry() {
 		refetchOrder();
 	}
@@ -57,8 +64,13 @@ export function useOrderController() {
 		canCancel: order?.status === 'PENDING',
 		shouldShowDeliveryCode: !!order && !isFinishedOrder(order.status),
 		shouldShowPayment: order?.status === 'PENDING_PAYMENT',
+		shouldShowReview: isDelivered,
+		review,
+		isLoadingReview,
+		reviewErrorMessage: reviewError ? getApiErrorMessage(reviewError) : '',
 		handleCancel,
 		handleGoToPayment,
+		handleGoToReview,
 		handleRetry,
 		handleGoBack
 	};

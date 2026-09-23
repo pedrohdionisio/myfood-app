@@ -15,6 +15,8 @@ export type AppRoutesParamList = {
 	Checkout: undefined;
 	Payment: { orderId: string };
 	Order: { orderId: string };
+	OrderReview: { orderId: string };
+	RestaurantReviews: { slug: string; tradeName: string };
 	Addresses: undefined;
 	AddressForm: { addressId?: string };
 };

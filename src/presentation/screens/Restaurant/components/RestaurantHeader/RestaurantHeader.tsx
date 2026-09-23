@@ -1,7 +1,7 @@
 import { BikeIcon, ClockIcon, StarIcon } from 'lucide-react-native';
 import { AppImage } from 'presentation/components/AppImage/AppImage';
 import { AppText } from 'presentation/components/AppText/AppText';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { formatPrice } from 'shared/utils/formatPrice';
 import { toCuisineLabel } from 'shared/utils/toCuisineLabel';
@@ -9,7 +9,7 @@ import type { IRestaurantHeaderProps } from './RestaurantHeaderTypes';
 
 const BANNER_HEIGHT = 180;
 
-export function RestaurantHeader({ restaurant, topInset }: IRestaurantHeaderProps) {
+export function RestaurantHeader({ restaurant, topInset, onOpenReviews }: IRestaurantHeaderProps) {
 	const cuisineLabel = toCuisineLabel(restaurant.cuisines);
 	const isClosed = !restaurant.isOpenNow || !restaurant.isAcceptingOrders;
 
@@ -52,17 +52,24 @@ export function RestaurantHeader({ restaurant, topInset }: IRestaurantHeaderProp
 				)}
 
 				<View className='mt-4 w-full flex-row items-center justify-between rounded-xl border border-gray-200 bg-white p-4'>
-					<View className='flex-1 items-center gap-1'>
+					<Pressable
+						accessibilityHint='Abre as avaliações do restaurante'
+						accessibilityRole='button'
+						accessibilityState={{ disabled: restaurant.ratingCount === 0 }}
+						className='flex-1 items-center gap-1 active:opacity-80'
+						disabled={restaurant.ratingCount === 0}
+						onPress={onOpenReviews}
+					>
 						<StarIcon color={COLORS.warning} size={16} strokeWidth={2} />
 
 						<AppText color='strong' size='bodySm' weight='semibold'>
 							{restaurant.ratingCount > 0 ? restaurant.ratingAvg.toFixed(1) : 'Novo'}
 						</AppText>
 
-						<AppText color='subtle' size='label'>
+						<AppText color={restaurant.ratingCount > 0 ? 'brand' : 'muted'} size='label'>
 							{restaurant.ratingCount} avaliações
 						</AppText>
-					</View>
+					</Pressable>
 
 					<View className='h-10 w-px bg-gray-200' />
 

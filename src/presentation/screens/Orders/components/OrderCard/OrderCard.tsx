@@ -40,6 +40,12 @@ export function OrderCard({ order, onPress }: IOrderCardProps) {
 				<AppText color='subtle' size='label'>
 					{formatDateTime(order.createdAt)}
 				</AppText>
+
+				{order.status === 'DELIVERED' && !order.hasReview && (
+					<AppText color='brand' size='label' weight='semibold'>
+						Avaliar pedido
+					</AppText>
+				)}
 			</View>
 		</Pressable>
 	);

@@ -27,6 +27,7 @@ export function Restaurant() {
 		handleSelectProduct,
 		handleAddProduct,
 		handleGoToCheckout,
+		handleOpenReviews,
 		handleRetry,
 		handleGoBack
 	} = useRestaurantController();
@@ -52,7 +53,13 @@ export function Restaurant() {
 							title='Cardápio vazio'
 						/>
 					}
-					ListHeaderComponent={<RestaurantHeader restaurant={restaurant} topInset={topInset} />}
+					ListHeaderComponent={
+						<RestaurantHeader
+							onOpenReviews={handleOpenReviews}
+							restaurant={restaurant}
+							topInset={topInset}
+						/>
+					}
 					contentContainerClassName='gap-6'
 					contentContainerStyle={contentPadding}
 					data={menuCategories}

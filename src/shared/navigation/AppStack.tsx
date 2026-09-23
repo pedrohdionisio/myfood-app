@@ -3,8 +3,10 @@ import { Addresses } from 'presentation/screens/Addresses/Addresses';
 import { AddressForm } from 'presentation/screens/AddressForm/AddressForm';
 import { Checkout } from 'presentation/screens/Checkout/Checkout';
 import { Order } from 'presentation/screens/Order/Order';
+import { OrderReview } from 'presentation/screens/OrderReview/OrderReview';
 import { Payment } from 'presentation/screens/Payment/Payment';
 import { Restaurant } from 'presentation/screens/Restaurant/Restaurant';
+import { RestaurantReviews } from 'presentation/screens/RestaurantReviews/RestaurantReviews';
 import type { AppRoutesParamList } from './AppRoutesTypes';
 import { AppTabNavigator } from './AppTabNavigator';
 
@@ -18,6 +20,8 @@ export function AppStack() {
 			<Stack.Screen component={Checkout} name='Checkout' />
 			<Stack.Screen component={Payment} name='Payment' />
 			<Stack.Screen component={Order} name='Order' />
+			<Stack.Screen component={OrderReview} name='OrderReview' />
+			<Stack.Screen component={RestaurantReviews} name='RestaurantReviews' />
 			<Stack.Screen component={Addresses} name='Addresses' />
 			<Stack.Screen component={AddressForm} name='AddressForm' />
 		</Stack.Navigator>
