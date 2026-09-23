@@ -190,7 +190,7 @@ O que existe e serve de molde:
   `OrderReview` (estrelas + comentário), `RestaurantReviews` (aberta pela nota no cabeçalho do
   restaurante), `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código),
   `EditProfile` (nos dois stacks) e `SessionUnavailable`
-- `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
+- `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`, `usePullToRefresh`
 - `shared/entities/` — `ICustomer`, `IDriver`, `IDelivery`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
 
@@ -258,6 +258,22 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 é o que o React Native avisa para não fazer. Tela com lista monta
 `<View className='flex-1 bg-gray-50'>` + `FlatList`, e pega o respiro de safe area do
 `useScreenPadding()` — o mesmo hook que o `ScreenLayout` usa — no `contentContainerStyle`.
+
+### Pull-to-refresh e teclado
+
+O puxar para atualizar sai do `usePullToRefresh(refetch)`, que marca `isRefreshing` só enquanto o
+gesto do usuário espera a resposta. **Não use o `isRefetching` do React Query no `RefreshControl`:**
+ele acende também no polling, e o spinner apareceria sozinho a cada 15s no `Order`. Tela com lista
+passa o `RefreshControl` à `FlatList`; tela com `ScreenLayout` passa `isRefreshing` e `onRefresh`.
+
+O `ScreenLayout` não usa `KeyboardAvoidingView`: o `automaticallyAdjustKeyboardInsets` do
+`ScrollView` abre espaço para o teclado **e** rola até o campo focado. O `KeyboardAvoidingView` só
+encolhia a tela, e o campo do fim do formulário ficava embaixo do teclado. O prop é só de iOS; o
+teclado no Android nunca foi conferido.
+
+Campo de texto dentro de bottom sheet é `BottomSheetTextInput`, não `TextInput`: é ele que avisa a
+sheet para subir com o teclado. Por ser de biblioteca, passa pelo `cssInterop` (ver
+`ProductSheetContent`).
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 

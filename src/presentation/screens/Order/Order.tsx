@@ -16,6 +16,7 @@ export function Order() {
 		order,
 		isLoadingOrder,
 		isCancelingOrder,
+		isRefreshing,
 		errorMessage,
 		actionErrorMessage,
 		canCancel,
@@ -29,11 +30,12 @@ export function Order() {
 		handleGoToPayment,
 		handleGoToReview,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	} = useOrderController();
 
 	return (
-		<ScreenLayout className='gap-4'>
+		<ScreenLayout className='gap-4' isRefreshing={isRefreshing} onRefresh={handleRefresh}>
 			<ScreenHeader onBack={handleGoBack} title='Pedido' />
 
 			{isLoadingOrder && (

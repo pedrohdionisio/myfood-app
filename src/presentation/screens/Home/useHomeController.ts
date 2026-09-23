@@ -8,6 +8,7 @@ import { useListRestaurants } from 'data/modules/discovery/useCases/listRestaura
 import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useDebouncedValue } from 'shared/hooks/useDebouncedValue';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type {
 	IHandleOpenRestaurantParams,
@@ -32,7 +33,7 @@ export function useHomeController() {
 	const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
 
 	const { cuisineCategories } = useListCuisineCategories();
-	const { addresses, isLoadingAddresses } = useListAddresses();
+	const { addresses, isLoadingAddresses, refetchAddresses } = useListAddresses();
 	const { setDefaultAddress } = useSetDefaultAddress();
 
 	const deliveryAddress = addresses[0] ?? null;
@@ -53,6 +54,8 @@ export function useHomeController() {
 		isEnabled: !isLoadingAddresses
 	});
 
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refreshDiscovery);
+
 	const isFiltering = debouncedQuery.trim().length > 0 || selectedCuisineSlug !== null;
 	const isMissingAddress = getApiErrorReason(restaurantsError) === NO_ADDRESS_REASON;
 
@@ -70,6 +73,10 @@ export function useHomeController() {
 		}
 
 		return isFiltering ? 'noResults' : 'empty';
+	}
+
+	function refreshDiscovery() {
+		return Promise.all([refetchAddresses(), refetchRestaurants()]);
 	}
 
 	function handleChangeQuery(value: string) {
@@ -144,6 +151,7 @@ export function useHomeController() {
 		listState: resolveListState(),
 		errorMessage: restaurantsError ? getApiErrorMessage(restaurantsError) : '',
 		isFetchingMoreRestaurants,
+		isRefreshing,
 		handleChangeQuery,
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
@@ -154,6 +162,7 @@ export function useHomeController() {
 		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	};
 }

@@ -1,12 +1,16 @@
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { cssInterop } from 'nativewind';
 import { AppImage } from 'presentation/components/AppImage/AppImage';
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { QuantityStepper } from 'presentation/components/QuantityStepper/QuantityStepper';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { formatPrice } from 'shared/utils/formatPrice';
 import type { IProductSheetContentProps } from './ProductSheetContentTypes';
 import { useProductSheetContentController } from './useProductSheetContentController';
+
+const StyledBottomSheetTextInput = cssInterop(BottomSheetTextInput, { className: 'style' });
 
 export function ProductSheetContent({ product, onAdd }: IProductSheetContentProps) {
 	const {
@@ -46,7 +50,7 @@ export function ProductSheetContent({ product, onAdd }: IProductSheetContentProp
 					Observação
 				</AppText>
 
-				<TextInput
+				<StyledBottomSheetTextInput
 					className='min-h-12 rounded-xl border border-gray-200 bg-white px-4 py-3 font-inter-regular text-body-md text-gray-900'
 					maxLength={280}
 					multiline

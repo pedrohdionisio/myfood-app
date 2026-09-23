@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getApiErrorMessage } from 'data/config/apiError';
 import { useAuth } from 'data/contexts/AuthProvider/AuthProvider';
 import { useListDeliveries } from 'data/modules/delivery/useCases/listDeliveries/useListDeliveries';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type { DeliveriesListState, IHandleOpenDeliveryParams } from './DeliveriesTypes';
 
@@ -10,13 +11,9 @@ export function useDeliveriesController() {
 	const contentPadding = useScreenPadding();
 	const { driver, signOut } = useAuth();
 
-	const {
-		deliveries,
-		isLoadingDeliveries,
-		isRefetchingDeliveries,
-		deliveriesError,
-		refetchDeliveries
-	} = useListDeliveries();
+	const { deliveries, isLoadingDeliveries, deliveriesError, refetchDeliveries } =
+		useListDeliveries();
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refetchDeliveries);
 
 	function resolveListState(): DeliveriesListState {
 		if (isLoadingDeliveries) {
@@ -34,10 +31,6 @@ export function useDeliveriesController() {
 		navigation.navigate('Delivery', { orderId });
 	}
 
-	function handleRefresh() {
-		refetchDeliveries();
-	}
-
 	function handleEditProfile() {
 		navigation.navigate('EditProfile');
 	}
@@ -52,7 +45,7 @@ export function useDeliveriesController() {
 		contentPadding,
 		listState: resolveListState(),
 		errorMessage: deliveriesError ? getApiErrorMessage(deliveriesError) : '',
-		isRefreshing: isRefetchingDeliveries,
+		isRefreshing,
 		handleOpenDelivery,
 		handleRefresh,
 		handleEditProfile,

@@ -1,7 +1,8 @@
 import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { ScreenHeader } from 'presentation/components/ScreenHeader/ScreenHeader';
-import { FlatList, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
+import { COLORS } from 'shared/constants/colors';
 import { AddressCard } from './components/AddressCard/AddressCard';
 import { AddressesPlaceholder } from './components/AddressesPlaceholder/AddressesPlaceholder';
 import { useAddressesController } from './useAddressesController';
@@ -13,12 +14,14 @@ export function Addresses() {
 		listState,
 		errorMessage,
 		actionErrorMessage,
+		isRefreshing,
 		handleSetDefault,
 		handleDelete,
 		handleEdit,
 		handleAddAddress,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	} = useAddressesController();
 
 	return (
@@ -57,6 +60,13 @@ export function Addresses() {
 				contentContainerStyle={contentPadding}
 				data={addresses}
 				keyExtractor={(address) => address.id}
+				refreshControl={
+					<RefreshControl
+						onRefresh={handleRefresh}
+						refreshing={isRefreshing}
+						tintColor={COLORS.brand.DEFAULT}
+					/>
+				}
 				renderItem={({ item }) => (
 					<AddressCard
 						address={item}

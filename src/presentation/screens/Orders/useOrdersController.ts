@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { getApiErrorMessage } from 'data/config/apiError';
 import { useListOrders } from 'data/modules/order/useCases/listOrders/useListOrders';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import { isFinishedOrder } from 'shared/utils/isFinishedOrder';
 import type { IHandleOpenOrderParams, OrdersListRow, OrdersListState } from './OrdersTypes';
@@ -18,6 +19,7 @@ export function useOrdersController() {
 		hasMoreOrders,
 		isFetchingMoreOrders
 	} = useListOrders();
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refetchOrders);
 
 	function buildRows(): OrdersListRow[] {
 		const active = orders.filter((order) => !isFinishedOrder(order.status));
@@ -69,8 +71,10 @@ export function useOrdersController() {
 		listState: resolveListState(),
 		errorMessage: ordersError ? getApiErrorMessage(ordersError) : '',
 		isFetchingMoreOrders,
+		isRefreshing,
 		handleOpenOrder,
 		handleRetry,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	};
 }

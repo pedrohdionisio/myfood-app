@@ -8,6 +8,7 @@ import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { IMenuProduct } from 'shared/entities/IMenuProduct';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type { AppRoutesParamList } from 'shared/navigation/AppRoutesTypes';
 import type { IAddProductParams } from './components/ProductSheet/ProductSheetTypes';
@@ -30,6 +31,8 @@ export function useRestaurantController() {
 		params.restaurantId
 	);
 
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refreshRestaurant);
+
 	const error = restaurantError ?? menuError;
 
 	function resolveScreenState(): RestaurantScreenState {
@@ -42,6 +45,10 @@ export function useRestaurantController() {
 		}
 
 		return menuCategories.length > 0 ? 'ready' : 'emptyMenu';
+	}
+
+	function refreshRestaurant() {
+		return Promise.all([refetchRestaurant(), refetchMenu()]);
 	}
 
 	function handleSelectProduct(product: IMenuProduct) {
@@ -122,11 +129,13 @@ export function useRestaurantController() {
 		screenState,
 		shouldShowMenu: screenState === 'ready' || screenState === 'emptyMenu',
 		errorMessage: error ? getApiErrorMessage(error) : '',
+		isRefreshing,
 		handleSelectProduct,
 		handleAddProduct,
 		handleGoToCheckout,
 		handleOpenReviews,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	};
 }

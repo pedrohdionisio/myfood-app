@@ -8,6 +8,7 @@ export function ProductSheet({ sheetRef, product, onAdd }: IProductSheetProps) {
 		<BottomSheetModal
 			backgroundStyle={{ backgroundColor: COLORS.white }}
 			handleIndicatorStyle={{ backgroundColor: COLORS.gray[300] }}
+			keyboardBlurBehavior='restore'
 			ref={sheetRef}
 		>
 			<BottomSheetView>

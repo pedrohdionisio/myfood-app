@@ -1,6 +1,7 @@
 import { type RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { getApiErrorMessage } from 'data/config/apiError';
 import { useListRestaurantReviews } from 'data/modules/review/useCases/listRestaurantReviews/useListRestaurantReviews';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type { AppRoutesParamList } from 'shared/navigation/AppRoutesTypes';
 import type { RestaurantReviewsListState } from './RestaurantReviewsTypes';
@@ -19,6 +20,7 @@ export function useRestaurantReviewsController() {
 		hasMoreReviews,
 		isFetchingMoreReviews
 	} = useListRestaurantReviews(params.slug);
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refetchReviews);
 
 	function resolveListState(): RestaurantReviewsListState {
 		if (isLoadingReviews) {
@@ -53,8 +55,10 @@ export function useRestaurantReviewsController() {
 		listState: resolveListState(),
 		errorMessage: reviewsError ? getApiErrorMessage(reviewsError) : '',
 		isFetchingMoreReviews,
+		isRefreshing,
 		handleGoBack,
 		handleRetry,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	};
 }

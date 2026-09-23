@@ -1,5 +1,5 @@
 import { AppText } from 'presentation/components/AppText/AppText';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { OrderCard } from './components/OrderCard/OrderCard';
 import { OrdersPlaceholder } from './components/OrdersPlaceholder/OrdersPlaceholder';
@@ -12,9 +12,11 @@ export function Orders() {
 		listState,
 		errorMessage,
 		isFetchingMoreOrders,
+		isRefreshing,
 		handleOpenOrder,
 		handleRetry,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	} = useOrdersController();
 
 	return (
@@ -43,6 +45,13 @@ export function Orders() {
 				keyExtractor={(row) => row.id}
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.4}
+				refreshControl={
+					<RefreshControl
+						onRefresh={handleRefresh}
+						refreshing={isRefreshing}
+						tintColor={COLORS.brand.DEFAULT}
+					/>
+				}
 				renderItem={({ item }) =>
 					item.kind === 'section' ? (
 						<AppText className='mt-2' color='muted' size='label' weight='medium'>

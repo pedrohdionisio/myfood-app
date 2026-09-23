@@ -4,6 +4,7 @@ import { useFailDelivery } from 'data/modules/delivery/useCases/failDelivery/use
 import { useListDeliveries } from 'data/modules/delivery/useCases/listDeliveries/useListDeliveries';
 import { useState } from 'react';
 import { Alert, Linking } from 'react-native';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import type { DriverRoutesParamList } from 'shared/navigation/AppRoutesTypes';
 import { formatDeliveryAddress } from 'shared/utils/formatDeliveryAddress';
 
@@ -14,6 +15,7 @@ export function useDeliveryController() {
 
 	const { deliveries, isLoadingDeliveries, deliveriesError, refetchDeliveries } =
 		useListDeliveries();
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refetchDeliveries);
 	const { failDelivery, isFailingDelivery } = useFailDelivery();
 	const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
 
@@ -77,6 +79,7 @@ export function useDeliveryController() {
 		delivery,
 		isLoadingDelivery: isLoadingDeliveries,
 		isFailingDelivery,
+		isRefreshing,
 		errorMessage: deliveriesError ? getApiErrorMessage(deliveriesError) : '',
 		actionErrorMessage,
 		hasError: !!deliveriesError && !delivery,
@@ -86,6 +89,7 @@ export function useDeliveryController() {
 		handleCallCustomer,
 		handleOpenMap,
 		handleFailDelivery,
-		handleRetry
+		handleRetry,
+		handleRefresh
 	};
 }

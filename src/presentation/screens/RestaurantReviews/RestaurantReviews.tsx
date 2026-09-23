@@ -1,6 +1,6 @@
 import { ReviewCard } from 'presentation/components/ReviewCard/ReviewCard';
 import { ScreenHeader } from 'presentation/components/ScreenHeader/ScreenHeader';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { RestaurantReviewsPlaceholder } from './components/RestaurantReviewsPlaceholder/RestaurantReviewsPlaceholder';
 import { useRestaurantReviewsController } from './useRestaurantReviewsController';
@@ -13,9 +13,11 @@ export function RestaurantReviews() {
 		listState,
 		errorMessage,
 		isFetchingMoreReviews,
+		isRefreshing,
 		handleGoBack,
 		handleRetry,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	} = useRestaurantReviewsController();
 
 	return (
@@ -44,6 +46,13 @@ export function RestaurantReviews() {
 				keyExtractor={(review) => review.id}
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.4}
+				refreshControl={
+					<RefreshControl
+						onRefresh={handleRefresh}
+						refreshing={isRefreshing}
+						tintColor={COLORS.brand.DEFAULT}
+					/>
+				}
 				renderItem={({ item }) => (
 					<ReviewCard
 						comment={item.comment}

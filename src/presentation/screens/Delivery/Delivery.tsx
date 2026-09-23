@@ -17,6 +17,7 @@ export function Delivery() {
 		delivery,
 		isLoadingDelivery,
 		isFailingDelivery,
+		isRefreshing,
 		errorMessage,
 		actionErrorMessage,
 		hasError,
@@ -26,11 +27,12 @@ export function Delivery() {
 		handleCallCustomer,
 		handleOpenMap,
 		handleFailDelivery,
-		handleRetry
+		handleRetry,
+		handleRefresh
 	} = useDeliveryController();
 
 	return (
-		<ScreenLayout className='gap-4'>
+		<ScreenLayout className='gap-4' isRefreshing={isRefreshing} onRefresh={handleRefresh}>
 			<ScreenHeader
 				onBack={handleGoBack}
 				title={delivery ? `Entrega #${delivery.displayNumber}` : 'Entrega'}

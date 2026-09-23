@@ -1,6 +1,6 @@
 import { AddressSheet } from 'presentation/components/AddressSheet/AddressSheet';
 import { RestaurantCard } from 'presentation/components/RestaurantCard/RestaurantCard';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { DiscoveryFiltersSheet } from './components/DiscoveryFiltersSheet/DiscoveryFiltersSheet';
 import { DiscoveryHeader } from './components/DiscoveryHeader/DiscoveryHeader';
@@ -23,6 +23,7 @@ export function Home() {
 		listState,
 		errorMessage,
 		isFetchingMoreRestaurants,
+		isRefreshing,
 		handleChangeQuery,
 		handleSelectCuisine,
 		handleToggleIncludeClosed,
@@ -33,7 +34,8 @@ export function Home() {
 		handleOpenRestaurant,
 		handleRetry,
 		handleGoToAddressForm,
-		handleEndReached
+		handleEndReached,
+		handleRefresh
 	} = useHomeController();
 
 	return (
@@ -72,6 +74,13 @@ export function Home() {
 				keyboardShouldPersistTaps='handled'
 				onEndReached={handleEndReached}
 				onEndReachedThreshold={0.4}
+				refreshControl={
+					<RefreshControl
+						onRefresh={handleRefresh}
+						refreshing={isRefreshing}
+						tintColor={COLORS.brand.DEFAULT}
+					/>
+				}
 				renderItem={({ item }) => (
 					<RestaurantCard
 						onPress={() => handleOpenRestaurant({ restaurantId: item.id, slug: item.slug })}

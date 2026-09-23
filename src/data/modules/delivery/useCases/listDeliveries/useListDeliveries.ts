@@ -5,7 +5,7 @@ import { DeliveryService } from 'data/modules/delivery/services/DeliveryService'
 const POLL_INTERVAL_MS = 30000;
 
 export function useListDeliveries() {
-	const { data, isPending, isRefetching, error, refetch } = useQuery({
+	const { data, isPending, error, refetch } = useQuery({
 		queryKey: [DELIVERY_QUERY_KEYS.LIST_DELIVERIES],
 		queryFn: DeliveryService.list,
 		refetchInterval: POLL_INTERVAL_MS
@@ -14,7 +14,6 @@ export function useListDeliveries() {
 	return {
 		deliveries: data ?? [],
 		isLoadingDeliveries: isPending,
-		isRefetchingDeliveries: isRefetching,
 		deliveriesError: error,
 		refetchDeliveries: refetch
 	};

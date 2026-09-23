@@ -1,6 +1,6 @@
 import { ChevronLeftIcon } from 'lucide-react-native';
 import { EmptyState } from 'presentation/components/EmptyState/EmptyState';
-import { FlatList, Pressable, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, View } from 'react-native';
 import { COLORS } from 'shared/constants/colors';
 import { CartBar } from './components/CartBar/CartBar';
 import { MenuCategorySection } from './components/MenuCategorySection/MenuCategorySection';
@@ -24,12 +24,14 @@ export function Restaurant() {
 		screenState,
 		shouldShowMenu,
 		errorMessage,
+		isRefreshing,
 		handleSelectProduct,
 		handleAddProduct,
 		handleGoToCheckout,
 		handleOpenReviews,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	} = useRestaurantController();
 
 	return (
@@ -64,6 +66,13 @@ export function Restaurant() {
 					contentContainerStyle={contentPadding}
 					data={menuCategories}
 					keyExtractor={(category) => category.id}
+					refreshControl={
+						<RefreshControl
+							onRefresh={handleRefresh}
+							refreshing={isRefreshing}
+							tintColor={COLORS.brand.DEFAULT}
+						/>
+					}
 					renderItem={({ item }) => (
 						<MenuCategorySection category={item} onSelectProduct={handleSelectProduct} />
 					)}

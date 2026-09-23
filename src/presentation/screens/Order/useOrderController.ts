@@ -6,6 +6,7 @@ import { useGetOrder } from 'data/modules/order/useCases/getOrder/useGetOrder';
 import { useGetOrderReview } from 'data/modules/review/useCases/getOrderReview/useGetOrderReview';
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import type { AppRoutesParamList } from 'shared/navigation/AppRoutesTypes';
 import { isFinishedOrder } from 'shared/utils/isFinishedOrder';
 
@@ -17,8 +18,15 @@ export function useOrderController() {
 	const { order, isLoadingOrder, orderError, refetchOrder } = useGetOrder(orderId);
 	const { cancelOrder, isCancelingOrder } = useCancelOrder();
 	const isDelivered = order?.status === 'DELIVERED';
-	const { review, isLoadingReview, reviewError } = useGetOrderReview(isDelivered ? orderId : null);
+	const { review, isLoadingReview, reviewError, refetchReview } = useGetOrderReview(
+		isDelivered ? orderId : null
+	);
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refreshOrder);
 	const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
+
+	function refreshOrder() {
+		return Promise.all([refetchOrder(), isDelivered ? refetchReview() : null]);
+	}
 
 	function handleCancel() {
 		Alert.alert('Cancelar pedido', 'Esta ação não pode ser desfeita.', [
@@ -59,6 +67,7 @@ export function useOrderController() {
 		order,
 		isLoadingOrder,
 		isCancelingOrder,
+		isRefreshing,
 		errorMessage: orderError ? getApiErrorMessage(orderError) : '',
 		actionErrorMessage,
 		canCancel: order?.status === 'PENDING',
@@ -72,6 +81,7 @@ export function useOrderController() {
 		handleGoToPayment,
 		handleGoToReview,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	};
 }

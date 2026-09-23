@@ -5,6 +5,7 @@ import { useListAddresses } from 'data/modules/customerAddress/useCases/listAddr
 import { useSetDefaultAddress } from 'data/modules/customerAddress/useCases/setDefaultAddress/useSetDefaultAddress';
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import { usePullToRefresh } from 'shared/hooks/usePullToRefresh';
 import { useScreenPadding } from 'shared/hooks/useScreenPadding';
 import type { AddressesListState, IHandleAddressParams } from './AddressesTypes';
 
@@ -14,6 +15,7 @@ export function useAddressesController() {
 	const [actionErrorMessage, setActionErrorMessage] = useState<string | null>(null);
 
 	const { addresses, isLoadingAddresses, addressesError, refetchAddresses } = useListAddresses();
+	const { isRefreshing, handleRefresh } = usePullToRefresh(refetchAddresses);
 	const { setDefaultAddress } = useSetDefaultAddress();
 	const { deleteAddress } = useDeleteAddress();
 
@@ -80,11 +82,13 @@ export function useAddressesController() {
 		listState: resolveListState(),
 		errorMessage: addressesError ? getApiErrorMessage(addressesError) : '',
 		actionErrorMessage,
+		isRefreshing,
 		handleSetDefault,
 		handleDelete,
 		handleEdit,
 		handleAddAddress,
 		handleRetry,
-		handleGoBack
+		handleGoBack,
+		handleRefresh
 	};
 }
