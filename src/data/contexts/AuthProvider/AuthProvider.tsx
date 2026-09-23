@@ -6,16 +6,20 @@ import {
 	setSessionHandlers
 } from 'data/config/api';
 import { AuthTokensManager, type IAuthTokens } from 'data/libs/AuthTokensManager';
+import { PushNotificationsManager } from 'data/libs/PushNotificationsManager';
 import { AuthService } from 'data/modules/auth/services/AuthService';
 import type { IAuthSessionResponse } from 'data/modules/auth/types/AuthTypes';
 import { DriverAuthService } from 'data/modules/driverAuth/services/DriverAuthService';
 import type { IDriverSessionResponse } from 'data/modules/driverAuth/types/DriverAuthTypes';
+import { PushTokenService } from 'data/modules/pushToken/services/PushTokenService';
+import type { IUnregisterPushTokenPayload } from 'data/modules/pushToken/types/PushTokenTypes';
 import {
 	createContext,
 	type PropsWithChildren,
 	use,
 	useCallback,
 	useEffect,
+	useRef,
 	useState
 } from 'react';
 import type { AuthProfile } from 'shared/constants/authProfiles';
@@ -39,11 +43,21 @@ async function fetchSignedInUser(profile: AuthProfile): Promise<SignedInUser> {
 export function AuthProvider({ children }: PropsWithChildren) {
 	const [user, setUser] = useState<SignedInUser | null>(null);
 	const [isRestoringSession, setIsRestoringSession] = useState(true);
+	const pushRegistrationRef = useRef<IUnregisterPushTokenPayload | null>(null);
 	const queryClient = useQueryClient();
+	const profile = user?.profile ?? null;
 
 	const signOut = useCallback(async () => {
-		removeAccessToken();
+		const pushRegistration = pushRegistrationRef.current;
+
+		pushRegistrationRef.current = null;
 		removeSessionHandlers();
+
+		if (pushRegistration) {
+			await PushTokenService.unregister(pushRegistration).catch(() => undefined);
+		}
+
+		removeAccessToken();
 		queryClient.clear();
 		setUser(null);
 
@@ -128,6 +142,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		restoreSession();
 	}, [activateSession]);
 
+	useEffect(() => {
+		if (!profile) {
+			return;
+		}
+
+		let isActive = true;
+
+		async function registerPushToken(currentProfile: AuthProfile) {
+			const devicePushToken = await PushNotificationsManager.getDevicePushToken();
+
+			if (!devicePushToken || !isActive) {
+				return;
+			}
+
+			try {
+				await PushTokenService.register({ profile: currentProfile, ...devicePushToken });
+
+				if (isActive) {
+					pushRegistrationRef.current = {
+						profile: currentProfile,
+						token: devicePushToken.token
+					};
+				}
+			} catch {
+				pushRegistrationRef.current = null;
+			}
+		}
+
+		registerPushToken(profile);
+
+		return () => {
+			isActive = false;
+		};
+	}, [profile]);
+
 	if (isRestoringSession) {
 		return null;
 	}
@@ -135,7 +184,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 	return (
 		<AuthContext.Provider
 			value={{
-				profile: user?.profile ?? null,
+				profile,
 				customer: user?.profile === 'customer' ? user.customer : null,
 				driver: user?.profile === 'driver' ? user.driver : null,
 				signedIn: !!user,

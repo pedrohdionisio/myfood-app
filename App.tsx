@@ -10,11 +10,14 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from 'data/config/queryClient';
 import { AuthProvider } from 'data/contexts/AuthProvider/AuthProvider';
 import { CartProvider } from 'data/contexts/CartProvider/CartProvider';
+import { PushNotificationsManager } from 'data/libs/PushNotificationsManager';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navigation } from 'shared/navigation/Navigation';
 import './src/styles/global.css';
+
+PushNotificationsManager.configure();
 
 export default function App() {
 	const [isFontsLoaded] = useFonts({

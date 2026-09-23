@@ -20,6 +20,6 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": ["expo-font", "expo-secure-store"]
+    "plugins": ["expo-font", "expo-secure-store", "expo-notifications"]
   }
 }

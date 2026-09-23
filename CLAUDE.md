@@ -163,6 +163,7 @@ O que existe e serve de molde:
 - `data/modules/driverAuth/` — login, refresh e `me` do entregador, no pool de `restaurant-users`
 - `data/modules/passwordRecovery/` — pedir código e trocar a senha; o service recebe o perfil e
   escolhe o pool, então quem chama não ramifica
+- `data/libs/PushNotificationsManager.ts` + `data/modules/pushToken/` — push; ver a seção abaixo
 - `data/modules/review/` — avaliar pedido, ler a avaliação do pedido (o 404 de "ainda não
   avaliado" vira `null` no service) e a lista pública paginada do restaurante
 - `data/modules/delivery/` — `/me/deliveries` (polling de 30s), confirmar com código e entrega
@@ -257,9 +258,27 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
-- sem push notification
 - sem asset: `app.json` não declara ícone nem splash
 - `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
+
+### Push: o código existe, o ambiente não
+
+`expo-notifications` está instalado e o plugin está no `app.json`, mas **nada foi testado**: exige
+dev build (`expo-dev-client`, que não está no projeto), aparelho físico, `extra.eas.projectId` no
+`app.json` (sai do `eas init`) e as credenciais nativas (APNs pelo EAS, FCM com
+`google-services.json`).
+
+- **Sem ambiente, push fica indisponível, não quebra.** `getDevicePushToken` devolve `null` em
+  simulador, sem permissão ou sem `projectId`, e o app segue sem registrar nada.
+- **O `AuthProvider` é dono do ciclo de vida.** Registra o token sempre que há perfil logado
+  (login, cadastro e reabertura, porque a rota é idempotente), na rota do perfil:
+  `/me/push-tokens` ou `/restaurant-users/me/push-tokens`.
+- **No logout, a remoção vem antes de apagar o access token**, porque a rota é autenticada. O
+  interceptor de 401 sai primeiro: sem isso, um 401 nessa chamada chamaria `signOut` de novo.
+- **Tocar na notificação abre o pedido** (`Order`) ou a entrega (`Delivery`), conforme o perfil,
+  inclusive com o app fechado. Quem faz é `shared/navigation/useOpenNotificationTarget.ts`, com a
+  ref do `NavigationContainer`. Como o `Navigation`, ele importa de `data/` — a exceção de camada
+  que a navegação já tinha.
 
 ### Pendências conhecidas
 
