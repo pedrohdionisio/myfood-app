@@ -1,30 +1,43 @@
 import { AppText } from 'presentation/components/AppText/AppText';
 import { ScreenLayout } from 'presentation/layouts/ScreenLayout/ScreenLayout';
 import { Pressable, View } from 'react-native';
+import { ProfileSelector } from './components/ProfileSelector/ProfileSelector';
 import { SignInForm } from './components/SignInForm/SignInForm';
 import { SignInHeader } from './components/SignInHeader/SignInHeader';
 import { useSignInController } from './useSignInController';
 
 export function SignIn() {
-	const { handleGoToSignUp } = useSignInController();
+	const { profile, shouldShowSignUp, handleSelectProfile, handleGoToSignUp } =
+		useSignInController();
 
 	return (
 		<ScreenLayout className='justify-center'>
 			<SignInHeader />
 
-			<SignInForm />
+			<ProfileSelector
+				onSelect={(selectedProfile) => handleSelectProfile({ profile: selectedProfile })}
+				selectedProfile={profile}
+			/>
 
-			<View className='mt-6 flex-row items-center justify-center gap-1'>
-				<AppText color='muted' size='bodySm'>
-					Ainda não tem uma conta?
-				</AppText>
+			<SignInForm profile={profile} />
 
-				<Pressable accessibilityRole='link' hitSlop={8} onPress={handleGoToSignUp}>
-					<AppText color='brand' size='bodySm' weight='medium'>
-						Cadastre-se
+			{shouldShowSignUp ? (
+				<View className='mt-6 flex-row items-center justify-center gap-1'>
+					<AppText color='muted' size='bodySm'>
+						Ainda não tem uma conta?
 					</AppText>
-				</Pressable>
-			</View>
+
+					<Pressable accessibilityRole='link' hitSlop={8} onPress={handleGoToSignUp}>
+						<AppText color='brand' size='bodySm' weight='medium'>
+							Cadastre-se
+						</AppText>
+					</Pressable>
+				</View>
+			) : (
+				<AppText align='center' className='mt-6' color='muted' size='bodySm'>
+					Use o e-mail e a senha que o restaurante cadastrou para você.
+				</AppText>
+			)}
 		</ScreenLayout>
 	);
 }

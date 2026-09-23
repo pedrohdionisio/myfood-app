@@ -8,6 +8,8 @@ import {
 import { AuthTokensManager, type IAuthTokens } from 'data/libs/AuthTokensManager';
 import { AuthService } from 'data/modules/auth/services/AuthService';
 import type { IAuthSessionResponse } from 'data/modules/auth/types/AuthTypes';
+import { DriverAuthService } from 'data/modules/driverAuth/services/DriverAuthService';
+import type { IDriverSessionResponse } from 'data/modules/driverAuth/types/DriverAuthTypes';
 import {
 	createContext,
 	type PropsWithChildren,
@@ -16,13 +18,26 @@ import {
 	useEffect,
 	useState
 } from 'react';
-import type { ICustomer } from 'shared/entities/ICustomer';
-import type { IAuthContextValue } from './AuthProviderTypes';
+import type { AuthProfile } from 'shared/constants/authProfiles';
+import type { IAuthContextValue, SignedInUser } from './AuthProviderTypes';
 
 const AuthContext = createContext<IAuthContextValue | null>(null);
 
+const REFRESH_TOKEN_BY_PROFILE = {
+	customer: AuthService.refreshToken,
+	driver: DriverAuthService.refreshToken
+};
+
+async function fetchSignedInUser(profile: AuthProfile): Promise<SignedInUser> {
+	if (profile === 'driver') {
+		return { profile, driver: await DriverAuthService.getMe() };
+	}
+
+	return { profile, customer: await AuthService.getMe() };
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
-	const [customer, setCustomer] = useState<ICustomer | null>(null);
+	const [user, setUser] = useState<SignedInUser | null>(null);
 	const [isRestoringSession, setIsRestoringSession] = useState(true);
 	const queryClient = useQueryClient();
 
@@ -30,7 +45,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		removeAccessToken();
 		removeSessionHandlers();
 		queryClient.clear();
-		setCustomer(null);
+		setUser(null);
 
 		await AuthTokensManager.clear();
 	}, [queryClient]);
@@ -45,7 +60,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		}
 
 		try {
-			const { accessToken } = await AuthService.refreshToken({
+			const { accessToken } = await REFRESH_TOKEN_BY_PROFILE[stored.profile]({
 				refreshToken: stored.refreshToken
 			});
 
@@ -69,14 +84,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
 		[refreshAccessToken, signOut]
 	);
 
-	const startSession = useCallback(
-		async ({ customer: signedInCustomer, session }: IAuthSessionResponse) => {
+	const startCustomerSession = useCallback(
+		async ({ customer, session }: IAuthSessionResponse) => {
 			await activateSession({
+				profile: 'customer',
 				accessToken: session.accessToken,
 				refreshToken: session.refreshToken
 			});
 
-			setCustomer(signedInCustomer);
+			setUser({ profile: 'customer', customer });
+		},
+		[activateSession]
+	);
+
+	const startDriverSession = useCallback(
+		async ({ user: driver, session }: IDriverSessionResponse) => {
+			await activateSession({
+				profile: 'driver',
+				accessToken: session.accessToken,
+				refreshToken: session.refreshToken
+			});
+
+			setUser({ profile: 'driver', driver });
 		},
 		[activateSession]
 	);
@@ -88,9 +117,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
 			if (tokens) {
 				await activateSession(tokens);
 
-				const restoredCustomer = await AuthService.getMe().catch(() => null);
+				const restoredUser = await fetchSignedInUser(tokens.profile).catch(() => null);
 
-				setCustomer(restoredCustomer);
+				setUser(restoredUser);
 			}
 
 			setIsRestoringSession(false);
@@ -104,7 +133,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
 	}
 
 	return (
-		<AuthContext.Provider value={{ customer, signedIn: !!customer, startSession, signOut }}>
+		<AuthContext.Provider
+			value={{
+				profile: user?.profile ?? null,
+				customer: user?.profile === 'customer' ? user.customer : null,
+				driver: user?.profile === 'driver' ? user.driver : null,
+				signedIn: !!user,
+				startCustomerSession,
+				startDriverSession,
+				signOut
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

@@ -2,13 +2,16 @@ import { AppText } from 'presentation/components/AppText/AppText';
 import { Button } from 'presentation/components/Button/Button';
 import { Input } from 'presentation/components/Input/Input';
 import { View } from 'react-native';
+import type { ISignInFormProps } from './SignInFormTypes';
 import { useSignInFormController } from './useSignInFormController';
 
-export function SignInForm() {
-	const { control, apiErrorMessage, isSigningIn, handleSubmit } = useSignInFormController();
+export function SignInForm({ profile }: ISignInFormProps) {
+	const { control, apiErrorMessage, isSigningIn, handleSubmit } = useSignInFormController({
+		profile
+	});
 
 	return (
-		<View className='mt-10 gap-6'>
+		<View className='mt-6 gap-6'>
 			<Input
 				autoCapitalize='none'
 				autoComplete='email'

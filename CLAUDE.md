@@ -140,10 +140,13 @@ de criar uma peça, leia a regra correspondente:
 
 ## Estado atual do repositório
 
-Sessão do cliente, endereços e descoberta de restaurantes prontos. Verificado com typecheck + lint
+Fluxo do cliente (sessão, endereços, descoberta, carrinho, checkout, Pix e pedidos) e fluxo do
+entregador prontos. Verificado com typecheck + lint
 — o app **nunca foi executado**.
 
-Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp) ou `AppStack` pela sessão. O `AppStack`
+Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp), `DriverStack` (Deliveries/Delivery)
+ou `AppStack` pela sessão e pelo perfil. O `SignIn` tem o seletor `Sou cliente / Sou entregador`. O
+`AppStack`
 tem `AppTabNavigator` (Início · Pedidos · Conta) mais `Restaurant`, `Checkout`, `Payment`, `Order`,
 `Addresses` e `AddressForm` empilhados. A tab bar é a
 nossa `CustomTabBar` — pílula branca flutuante, sem rótulo e sem botão central.
@@ -157,6 +160,9 @@ O que existe e serve de molde:
   (com `getApiErrorReason`), `env`, `queryClient`, `viaCepApi`
 - `data/contexts/AuthProvider/` + `data/libs/AuthTokensManager.ts` — sessão no `expo-secure-store`
 - `data/modules/auth/` — molde de módulo com mutation
+- `data/modules/driverAuth/` — login, refresh e `me` do entregador, no pool de `restaurant-users`
+- `data/modules/delivery/` — `/me/deliveries` (polling de 30s), confirmar com código e entrega
+  frustrada; o detalhe lê da listagem, porque a API não tem `GET` de uma entrega só
 - `data/modules/customerAddress/` — **molde de CRUD**: query + 4 mutations que invalidam a listagem,
   e `schemas/addressFormSchema.ts` (schema de módulo, usado por criar e editar)
 - `data/modules/discovery/` — **molde de lista paginada** (`useInfiniteQuery`), com busca por
@@ -173,9 +179,10 @@ O que existe e serve de molde:
 - `presentation/screens/` — `SignIn` (screen composta), `SignUp`, `Home` (busca + pills + filtros +
   lista paginada com os estados), `Restaurant` (banner, logo, cardápio por categoria), `Account`,
   `Addresses`, `AddressForm` (formulário com auto-preenchimento por CEP), `Checkout`, `Payment`
-  (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega)
+  (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega),
+  `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código)
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`
-- `shared/entities/` — `ICustomer`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
+- `shared/entities/` — `ICustomer`, `IDriver`, `IDelivery`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
 
 ### Discovery: o que a API filtra e o que ela não filtra
@@ -245,10 +252,8 @@ tela de aba e tela empilhada. Ver `.claude/rules/design-system.md`.
 
 O que **não** existe ainda, e por isso não deve ser referenciado como se existisse:
 
-- **Card de restaurante não é clicável.** Não há tela de restaurante nem cardápio: tocar num card
-  não faz nada. É a emenda da próxima fatia (`/discovery/restaurants/:slug` e `.../menu`)
-- sem carrinho, checkout, pedido, pagamento ou avaliação
-- sem `@gorhom/bottom-sheet` em uso — está instalado desde o scaffold e nunca foi montado
+- sem avaliação e sem push notification
+- sem recuperação de senha, nos dois perfis
 - sem asset: `app.json` não declara ícone nem splash
 - `ios/` e `android/` não são versionadas (CNG) e não há `expo-dev-client`
 

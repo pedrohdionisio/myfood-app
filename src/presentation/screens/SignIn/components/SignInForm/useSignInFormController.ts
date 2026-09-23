@@ -6,12 +6,15 @@ import {
 	signInSchema
 } from 'data/modules/auth/useCases/signIn/schemas/signInSchema';
 import { useSignIn } from 'data/modules/auth/useCases/signIn/useSignIn';
+import { useDriverSignIn } from 'data/modules/driverAuth/useCases/signIn/useDriverSignIn';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import type { IUseSignInFormControllerParams } from './SignInFormTypes';
 
-export function useSignInFormController() {
-	const { startSession } = useAuth();
+export function useSignInFormController({ profile }: IUseSignInFormControllerParams) {
+	const { startCustomerSession, startDriverSession } = useAuth();
 	const { signIn, isSigningIn } = useSignIn();
+	const { driverSignIn, isDriverSigningIn } = useDriverSignIn();
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
 
 	const { control, handleSubmit } = useForm<SignInFormType>({
@@ -26,9 +29,13 @@ export function useSignInFormController() {
 		setApiErrorMessage(null);
 
 		try {
-			const response = await signIn(formData);
+			if (profile === 'driver') {
+				await startDriverSession(await driverSignIn(formData));
 
-			await startSession(response);
+				return;
+			}
+
+			await startCustomerSession(await signIn(formData));
 		} catch (error) {
 			setApiErrorMessage(getApiErrorMessage(error));
 		}
@@ -37,7 +44,7 @@ export function useSignInFormController() {
 	return {
 		control,
 		apiErrorMessage,
-		isSigningIn,
+		isSigningIn: isSigningIn || isDriverSigningIn,
 		handleSubmit: handleSubmit(onSubmit)
 	};
 }

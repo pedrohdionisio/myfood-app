@@ -19,11 +19,17 @@ export type AppRoutesParamList = {
 	AddressForm: { addressId?: string };
 };
 
+export type DriverRoutesParamList = {
+	Deliveries: undefined;
+	Delivery: { orderId: string };
+};
+
 declare global {
 	namespace ReactNavigation {
 		interface RootParamList
 			extends AuthRoutesParamList,
 				AppTabRoutesParamList,
-				AppRoutesParamList {}
+				AppRoutesParamList,
+				DriverRoutesParamList {}
 	}
 }

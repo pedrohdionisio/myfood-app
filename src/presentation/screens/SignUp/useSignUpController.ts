@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 
 export function useSignUpController() {
 	const navigation = useNavigation();
-	const { startSession } = useAuth();
+	const { startCustomerSession } = useAuth();
 	const { signUp, isSigningUp } = useSignUp();
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ export function useSignUpController() {
 		try {
 			const response = await signUp(formData);
 
-			await startSession(response);
+			await startCustomerSession(response);
 		} catch (error) {
 			setApiErrorMessage(getApiErrorMessage(error));
 		}

@@ -151,9 +151,15 @@ passar a ler `requestDelayMs` em outro lugar.
 
 ## Sessão
 
-O app do cliente fala com o pool de **customer** da API: `/auth/customers/sign-in`,
-`/auth/customers/sign-up`, `/auth/customers/refresh` e `GET /customers/me`. As rotas de
-`restaurant-users` são do dashboard e não têm uso aqui.
+O app fala com os **dois** pools da API, um por perfil (`AuthProfile`: `customer` ou `driver`):
+
+- cliente: `/auth/customers/sign-in`, `sign-up`, `refresh` e `GET /customers/me` (módulo `auth`);
+- entregador: `/auth/restaurant-users/sign-in`, `refresh` e `GET /restaurant-users/me` (módulo
+  `driverAuth`). Não há cadastro: quem cria a conta do entregador é o dono, pelo dashboard.
+
+Uma sessão por vez. O perfil é gravado junto dos tokens, porque o boot e o refresh precisam saber
+qual pool chamar — token de um pool não serve no outro. Quem é cliente e entregador tem duas
+contas, uma em cada pool, e troca saindo e entrando de novo.
 
 Os tokens ficam no `expo-secure-store` via `data/libs/AuthTokensManager.ts`, e o interceptor de 401
 em `api.ts` é instalado pelo `AuthProvider` só enquanto existe sessão.
@@ -182,5 +188,5 @@ O dashboard guarda tudo sob `@myfood:auth-tokens` no `localStorage`. Aqui isso *
 SecureStore só aceita chave alfanumérica mais `.`, `-` e `_`. Daí `myfood.auth.access-token` e
 `myfood.auth.refresh-token`.
 
-São duas chaves, não um JSON só, porque o SecureStore avisa (e no futuro vai falhar) acima de 2048
+São chaves separadas (perfil, access e refresh), não um JSON só, porque o SecureStore avisa (e no futuro vai falhar) acima de 2048
 bytes por valor — e dois JWT do Cognito no mesmo valor passam perto demais desse teto.

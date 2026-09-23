@@ -18,11 +18,13 @@ no topo, que competiria com `presentation/screens/` e quebraria a regra de que r
 src/shared/navigation/
 ├── AppRoutesTypes.ts    # os param lists e a augmentação global
 ├── AuthStack.tsx        # SignIn, SignUp
-├── AppStack.tsx         # o que exige sessão
-└── Navigation.tsx       # NavigationContainer + a escolha entre os dois
+├── AppStack.tsx         # sessão de cliente
+├── DriverStack.tsx      # sessão de entregador: Deliveries, Delivery
+└── Navigation.tsx       # NavigationContainer + a escolha entre os três
 ```
 
-`Navigation` decide entre `AuthStack` e `AppStack` pelo `signedIn` do `useAuth()`. **Login é
+`Navigation` decide pelo `signedIn` e pelo `profile` do `useAuth()`: sem sessão, `AuthStack`;
+entregador, `DriverStack`; cliente, `AppStack`. Uma screen de um stack nunca navega para outro. **Login é
 obrigatório na entrada**, por decisão de produto: não existe rota pública. Trocar isso — modelo
 iFood, com catálogo aberto e login só no checkout — é mudar `Navigation` e promover `SignIn` a
 modal; não espalhe guarda por screen.
