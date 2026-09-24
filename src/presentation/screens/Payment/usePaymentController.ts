@@ -14,8 +14,8 @@ export function usePaymentController() {
 	const { params } = useRoute<RouteProp<AppRoutesParamList, 'Payment'>>();
 	const { orderId } = params;
 
-	const { createPixPayment, isCreatingPixPayment } = useCreatePixPayment();
-	const { payment, paymentError } = useGetPayment(orderId, !isCreatingPixPayment);
+	const { createPixPayment, isCreatingPixPayment, hasCreatedPixPayment } = useCreatePixPayment();
+	const { payment, paymentError } = useGetPayment(orderId, hasCreatedPixPayment);
 
 	const [createError, setCreateError] = useState<unknown>(null);
 	const [hasCopied, setHasCopied] = useState(false);
@@ -27,7 +27,7 @@ export function usePaymentController() {
 
 	useEffect(() => {
 		if (payment?.status === 'PAID') {
-			navigation.replace('Order', { orderId });
+			navigation.popTo('Order', { orderId });
 		}
 	}, [payment?.status, navigation, orderId]);
 
@@ -41,7 +41,7 @@ export function usePaymentController() {
 	}
 
 	function handleGoToOrder() {
-		navigation.replace('Order', { orderId });
+		navigation.popTo('Order', { orderId });
 	}
 
 	const error = createError ?? paymentError;

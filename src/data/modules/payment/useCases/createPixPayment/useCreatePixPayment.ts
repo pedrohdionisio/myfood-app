@@ -5,7 +5,7 @@ import { PaymentService } from 'data/modules/payment/services/PaymentService';
 export function useCreatePixPayment() {
 	const queryClient = useQueryClient();
 
-	const { mutateAsync, isPending } = useMutation({
+	const { mutateAsync, isPending, isSuccess } = useMutation({
 		mutationKey: [PAYMENT_MUTATION_KEYS.CREATE_PIX_PAYMENT],
 		mutationFn: PaymentService.createPix,
 		onSuccess: (payment) =>
@@ -14,6 +14,7 @@ export function useCreatePixPayment() {
 
 	return {
 		createPixPayment: mutateAsync,
-		isCreatingPixPayment: isPending
+		isCreatingPixPayment: isPending,
+		hasCreatedPixPayment: isSuccess
 	};
 }
