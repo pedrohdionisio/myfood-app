@@ -13,6 +13,8 @@ import { CartProvider } from 'data/contexts/CartProvider/CartProvider';
 import { PushNotificationsManager } from 'data/libs/PushNotificationsManager';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { AppError } from 'presentation/screens/AppError/AppError';
+import { ErrorBoundary } from 'react-error-boundary';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Navigation } from 'shared/navigation/Navigation';
@@ -37,15 +39,17 @@ export default function App() {
 		<QueryClientProvider client={queryClient}>
 			<SafeAreaProvider>
 				<GestureHandlerRootView>
-					<BottomSheetModalProvider>
-						<StatusBar style='dark' />
+					<StatusBar style='dark' />
 
-						<AuthProvider>
-							<CartProvider>
-								<Navigation />
-							</CartProvider>
-						</AuthProvider>
-					</BottomSheetModalProvider>
+					<ErrorBoundary FallbackComponent={AppError}>
+						<BottomSheetModalProvider>
+							<AuthProvider>
+								<CartProvider>
+									<Navigation />
+								</CartProvider>
+							</AuthProvider>
+						</BottomSheetModalProvider>
+					</ErrorBoundary>
 				</GestureHandlerRootView>
 			</SafeAreaProvider>
 		</QueryClientProvider>
