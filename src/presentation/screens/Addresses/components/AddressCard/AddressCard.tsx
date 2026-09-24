@@ -3,6 +3,8 @@ import { Pressable, View } from 'react-native';
 import type { IAddressCardProps } from './AddressCardTypes';
 
 export function AddressCard({ address, onSetDefault, onEdit, onDelete }: IAddressCardProps) {
+	const addressName = address.label ?? `${address.street}, ${address.number}`;
+
 	return (
 		<View className='gap-3 rounded-xl border border-gray-200 bg-white p-4'>
 			<View className='flex-row items-center gap-2'>
@@ -32,20 +34,35 @@ export function AddressCard({ address, onSetDefault, onEdit, onDelete }: IAddres
 
 			<View className='flex-row gap-4'>
 				{!address.isDefault && (
-					<Pressable accessibilityRole='button' hitSlop={8} onPress={onSetDefault}>
+					<Pressable
+						accessibilityLabel={`Tornar ${addressName} o endereço padrão`}
+						accessibilityRole='button'
+						hitSlop={8}
+						onPress={onSetDefault}
+					>
 						<AppText color='brand' size='bodySm' weight='medium'>
 							Tornar padrão
 						</AppText>
 					</Pressable>
 				)}
 
-				<Pressable accessibilityRole='button' hitSlop={8} onPress={onEdit}>
+				<Pressable
+					accessibilityLabel={`Editar ${addressName}`}
+					accessibilityRole='button'
+					hitSlop={8}
+					onPress={onEdit}
+				>
 					<AppText color='default' size='bodySm' weight='medium'>
 						Editar
 					</AppText>
 				</Pressable>
 
-				<Pressable accessibilityRole='button' hitSlop={8} onPress={onDelete}>
+				<Pressable
+					accessibilityLabel={`Excluir ${addressName}`}
+					accessibilityRole='button'
+					hitSlop={8}
+					onPress={onDelete}
+				>
 					<AppText color='destructive' size='bodySm' weight='medium'>
 						Excluir
 					</AppText>

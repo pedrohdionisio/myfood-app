@@ -51,6 +51,7 @@ export function ProductSheetContent({ product, onAdd }: IProductSheetContentProp
 				</AppText>
 
 				<StyledBottomSheetTextInput
+					accessibilityLabel='Observação'
 					className='min-h-12 rounded-xl border border-gray-200 bg-white px-4 py-3 font-inter-regular text-body-md text-gray-900'
 					maxLength={280}
 					multiline

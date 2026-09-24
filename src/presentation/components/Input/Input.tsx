@@ -33,6 +33,7 @@ export function Input<
 
 			<View className='justify-center'>
 				<TextInput
+					accessibilityLabel={label}
 					className={cn(
 						'h-12 rounded-xl border bg-white px-4 font-inter-regular text-body-md text-gray-900',
 						errorMessage ? 'border-destructive' : 'border-gray-200',

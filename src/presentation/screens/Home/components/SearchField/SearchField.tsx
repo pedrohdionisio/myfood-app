@@ -9,6 +9,7 @@ export function SearchField({ value, onChangeText }: ISearchFieldProps) {
 			<SearchIcon color={COLORS.gray[400]} size={18} strokeWidth={1.8} />
 
 			<TextInput
+				accessibilityLabel='Buscar restaurante'
 				autoCapitalize='none'
 				autoCorrect={false}
 				className='h-full flex-1 font-inter-regular text-body-md text-gray-900'
