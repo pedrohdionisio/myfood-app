@@ -1,5 +1,6 @@
 # MyFood App
 
+[![CI](https://github.com/pedrohdionisio/myfood-app/actions/workflows/ci.yml/badge.svg)](https://github.com/pedrohdionisio/myfood-app/actions/workflows/ci.yml)
 ![Expo SDK 57](https://img.shields.io/badge/expo-SDK%2057-000020?logo=expo&logoColor=white)
 ![React Native](https://img.shields.io/badge/react%20native-0.86-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/typescript-strict-3178C6?logo=typescript&logoColor=white)
@@ -21,6 +22,7 @@ close each one with a code only the customer has.
 - [Highlights](#highlights)
 - [Architecture](#architecture)
 - [Running locally](#running-locally)
+- [Testing](#testing)
 - [Project layout](#project-layout)
 - [Stack](#stack)
 
@@ -64,8 +66,9 @@ close each one with a code only the customer has.
   an `Idempotency-Key`, so a double tap or a retry places one order.
 - **Session in the secure store.** Tokens live in `expo-secure-store`, with the same single-flight
   refresh on `401` as the dashboard.
-- **Quality gate on every commit.** Husky and lint-staged run Biome and the TypeScript compiler;
-  code that does not pass does not get committed.
+- **Quality gate on every commit and push.** Husky and lint-staged run Biome and the TypeScript
+  compiler before each commit; GitHub Actions runs them again with the test suite, the coverage
+  thresholds and a JavaScript bundle of both platforms.
 
 ## Architecture
 
@@ -116,9 +119,26 @@ yarn ios        # or: yarn android
 | `yarn ios` · `yarn android` | Native build and run |
 | `yarn typecheck` | `tsc --noEmit` |
 | `yarn lint` · `yarn format` | Biome check, and check with fixes |
+| `yarn test` · `yarn test:coverage` | Jest, and Jest failing below the coverage thresholds |
 
 The API's seed (`pnpm db:seed` in myfood-api) creates customers, drivers and restaurants to sign in
 with.
+
+## Testing
+
+| Suite | Tool | What it covers |
+|---|---|---|
+| Unit | Jest | Masks, formatters, Zod schemas, the ViaCEP mapper, API error parsing and the `401` refresh interceptor |
+| Feature | Jest, React Native Testing Library, MSW | The whole app rendered with its real providers and navigation against a mocked API: session restore and refresh, discovery, cart and checkout, Pix, orders and reviews, addresses, password recovery, the driver's deliveries and push notification routing |
+
+```bash
+yarn test            # unit and feature
+yarn test:coverage   # same, failing below the coverage thresholds
+```
+
+Tests select elements the way a user finds them — role, label and text — and never need the API or
+a simulator: every request is answered by a mock of its contract. There are no end-to-end tests on
+a device yet.
 
 ## Project layout
 
@@ -146,7 +166,8 @@ English.
 
 Expo SDK 57 · React Native 0.86 · React 19 · TypeScript · NativeWind 4 (Tailwind CSS 3.4) · React
 Navigation 7 · TanStack Query · axios · React Hook Form · Zod · expo-notifications ·
-expo-secure-store · expo-image · Gorhom Bottom Sheet · Biome · Husky + lint-staged
+expo-secure-store · expo-image · Gorhom Bottom Sheet · Jest · React Native Testing Library · MSW ·
+Biome · Husky + lint-staged · GitHub Actions
 
 ## Author
 

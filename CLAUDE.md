@@ -9,17 +9,18 @@ dele divergirem sem explicação, o dashboard é a referência.
 
 ## Verificação — regra que não se negocia
 
-**Depois de qualquer alteração, rode apenas estes dois:**
+**Depois de qualquer alteração, rode estes três:**
 
 ```bash
-yarn typecheck && yarn lint
+yarn typecheck && yarn lint && yarn test
 ```
 
 **NUNCA suba o Metro (`yarn start`, `expo start`), nem rode `yarn ios`, `yarn android` ou
 `expo prebuild` sem o Pedro pedir explicitamente.** Não é preferência: build e servidor só rodam
 quando pedidos, por mais que pareçam a forma óbvia de confirmar que algo funciona.
-`typecheck` + `lint` é o fechamento padrão — é o mesmo par que o pre-commit roda, então passar
-neles é o que define "pronto".
+`typecheck` + `lint` + `test` é o fechamento padrão — é o que o CI roda, então passar neles é o
+que define "pronto". O `yarn test` é Jest em Node: não sobe Metro, simulador nem API. O pre-commit
+roda só `lint-staged` + `typecheck`; os testes ficam para você e para o CI.
 
 Pedido explícito é o Pedro escrevendo que quer (`sobe o app`, `roda no simulador`,
 `quer ver na tela`). Achar que seria útil não conta; se você julga que rodar é necessário para
@@ -38,11 +39,14 @@ tokens e pelo componente mais próximo que já existe, não por tentativa e erro
 - `lucide-react-native` para ícones · `react-native-svg` · `expo-image`
 - `expo-secure-store` para os tokens de sessão
 - Biome para lint e formatação · yarn 1 · Husky + lint-staged no pre-commit
+- Jest (`jest-expo`) + React Native Testing Library + MSW para teste · GitHub Actions no CI
 
 NativeWind 4 **não** suporta Tailwind 4 — o `tailwindcss` fica na linha 3.4 de propósito. Por isso
 os tokens deste app vivem em `tailwind.config.js`, e não num `@theme` de CSS como no dashboard.
 
-Não há framework de teste no projeto, por decisão — a verificação é typecheck + lint.
+O teste roda em Jest, não em Vitest como no dashboard e na API: o `react-native` publica Flow e
+ESM que o Vitest não transforma, e o `jest-expo` é o preset que a Expo mantém, com os módulos
+nativos já mockados.
 
 ## Comandos
 
@@ -51,11 +55,15 @@ Não há framework de teste no projeto, por decisão — a verificação é type
 | `yarn typecheck` | `tsc --noEmit`                                |
 | `yarn lint`      | `biome check .`                               |
 | `yarn format`    | `biome check --write .` (corrige e formata)   |
+| `yarn test`      | Jest, unitário e feature                      |
+| `yarn test:watch` | Jest em modo watch                           |
+| `yarn test:coverage` | Jest com cobertura; falha abaixo dos limites do `jest.config.js` |
 | `yarn start`     | Metro — **só se pedido**                      |
 | `yarn ios`       | Build nativo e run no simulador — **só se pedido** |
 | `yarn android`   | Build nativo e run no Android — **só se pedido** |
 
-`EXPO_PUBLIC_API_URL` é obrigatória: `data/config/env.ts` lança se ela faltar. Copie o
+`EXPO_PUBLIC_API_URL` é obrigatória: `data/config/env.ts` valida as variáveis com Zod e lança,
+nomeando cada uma, se alguma faltar ou vier inválida. Copie o
 `.env.example` para `.env`. Em device físico, troque `localhost` pelo IP da máquina.
 
 `EXPO_PUBLIC_REQUEST_DELAY_MS` atrasa toda request de propósito, para dar tempo de ver skeleton e
@@ -89,7 +97,12 @@ mesma pasta, caminho relativo (`./AppTextTypes`).
 O alias é **sem `@`**, igual ao dashboard, e vive só no `tsconfig.json`. O Metro resolve por ele
 antes de olhar `node_modules` — então `data/config/api` nunca vai parar num pacote de mesmo nome.
 Não existe cópia do alias no `babel.config.js`; `experiments.tsconfigPaths` no `app.json` é o que
-liga isso (e já é o default do SDK 57).
+liga isso (e já é o default do SDK 57). O Jest lê os mesmos `paths` pelo `jest-expo`, então o
+`jest.config.js` também não repete alias. O quarto alias, `tests/*`, aponta para `tests/` e só é
+importado pelos arquivos de teste.
+
+O `tsconfig.json` declara `"types": ["jest"]`: o TypeScript 6 não carrega mais `@types/*` sozinho,
+e sem isso os globais do Jest (`describe`, `expect`) não existem para o `typecheck`.
 
 ## Padrões globais
 
@@ -123,6 +136,33 @@ não sua.
 
 Se algo só se entende com comentário, o código é que precisa mudar.
 
+## Testes
+
+- **Unitário** é `*.test.ts` ao lado do arquivo testado: função pura, schema, mapper, o interceptor
+  de 401 (`data/config/api.test.ts`).
+- **Feature** é `*.test.tsx` ao lado da screen e renderiza **o app inteiro** — providers reais,
+  `Navigation` real — com `renderApp()` de `tests/render.tsx`, contra a API mockada pelo MSW. Para
+  começar logado, `await seedSession()` (ou `seedSession('driver')`) antes de renderizar. O teste
+  chega à tela pelo caminho do usuário, com os passos de `tests/flows.ts` (`openRestaurant`,
+  `addProductToCart`, `goToCheckout`, `openOrder`), em vez de montar a screen solta.
+- Os handlers padrão (`tests/handlers.ts`) descrevem um cliente com um endereço e um restaurante
+  aberto; o teste sobrescreve só o que importa com `server.use`. Request sem handler quebra o teste.
+  As fixtures ficam em `tests/fixtures/`.
+- Selecione pelo que o usuário vê: `getByRole`, `getByLabelText`, texto. Nada de `testID`. Se não
+  há como achar o elemento assim, o leitor de tela também não acha — conserte a acessibilidade
+  (`accessibilityLabel`, `accessibilityRole`), não o teste.
+- Título começa com `should` e segue no infinitivo: `it('should cancel a pending order')`.
+- O `render` do RNTL 14 é assíncrono: `await render(...)`, `await renderHook(...)`.
+- `Alert` é espionado com `spyOnAlert()` de `tests/alert.ts`, que também aperta os botões.
+- Mocks de módulo nativo ficam em `tests/setup.ts` e `tests/mocks/`: `expo-secure-store` (em
+  memória), `expo-notifications`, `expo-crypto`, reanimated, safe area e bottom sheet. O mock do
+  bottom sheet renderiza o conteúdo sempre, aberto ou não.
+- Termine o teste esperando a tela assentar (`waitForHome()` de `tests/screens.ts`, ou um
+  `findBy…` do estado final). Parar antes deixa query resolvendo depois do teste e gera aviso de
+  `act`. Aviso de `act` é defeito do teste, não ruído: a suíte hoje roda sem nenhum.
+- Timer falso só onde o comportamento é o timer (polling do Pix, debounce). Ligue-o depois de a
+  tela montar: navegação com `jest.useFakeTimers()` desde o início não avança.
+
 ## Regras por contexto
 
 As regras detalhadas ficam em `.claude/rules/`. Elas carregam sozinhas quando você **lê** um arquivo
@@ -141,8 +181,8 @@ de criar uma peça, leia a regra correspondente:
 ## Estado atual do repositório
 
 Fluxo do cliente (sessão, endereços, descoberta, carrinho, checkout, Pix e pedidos) e fluxo do
-entregador prontos. Verificado com typecheck + lint
-— o app **nunca foi executado**.
+entregador prontos. Verificado com typecheck, lint e a suíte de teste (unitário e feature, contra
+a API mockada) — o app **nunca foi executado** num aparelho nem contra a API real.
 
 Navegação: `Navigation` escolhe `AuthStack` (SignIn/SignUp/ForgotPassword/ResetPassword), `DriverStack` (Deliveries/Delivery)
 ou `AppStack` pela sessão e pelo perfil. O `SignIn` tem o seletor `Sou cliente / Sou entregador`. O
@@ -189,7 +229,8 @@ O que existe e serve de molde:
   (Pix copia e cola), `Orders` (em andamento e finalizados), `Order` (detalhe com código de entrega),
   `OrderReview` (estrelas + comentário), `RestaurantReviews` (aberta pela nota no cabeçalho do
   restaurante), `Deliveries` e `Delivery` (entregador: lista em rota, mapa, ligar, cobrança e código),
-  `EditProfile` (nos dois stacks) e `SessionUnavailable`
+  `EditProfile` (nos dois stacks), `SessionUnavailable` e `AppError` (fallback do
+  `ErrorBoundary` do `App.tsx`: solta a splash e remonta a árvore no "Tentar de novo")
 - `shared/hooks/` — `useDebouncedValue`, `useScreenPadding`, `usePullToRefresh`
 - `shared/entities/` — `ICustomer`, `IDriver`, `IDelivery`, `ICustomerAddress`, `IRestaurantSummary`, `IProductHit`,
   `IAddress`, `IImageUrls`
@@ -214,6 +255,10 @@ Ao mexer em qualquer um dos lados, leia o comentário que está naquele arquivo.
   `PENDING` é o **webhook do gateway**. Por isso o checkout navega para `Payment`, que chama
   `POST /orders/:id/payment` e fica em polling de 5s no `GET`. `CASH` e `CARD_ON_DELIVERY` nascem
   em `PENDING` e vão direto para `Order`.
+- **O polling do Pix só liga depois do `POST`** (`hasCreatedPixPayment`). Antes, o primeiro `GET`
+  saía junto com a criação e batia num 404. Quando o `GET` lê `PAID`, o `useGetPayment` invalida o
+  pedido e a listagem, e a tela volta com `popTo('Order')`: vinda do detalhe, retorna a ele em vez
+  de empilhar um segundo `Order`; vinda do checkout, age como `replace`.
 - **Não há realtime** (é a Phase 11 da API). Status de pedido é polling de 15s no detalhe, e ele
   para sozinho quando o pedido chega a um estado final.
 - **Cancelar só em `PENDING`.** Em qualquer outro status o botão não é renderizado.
@@ -334,13 +379,24 @@ O `Input` aceita `mask` (aplicada no `onChangeText`) e `endAdornment`. Senha usa
 `PasswordInput`, que é o `Input` com o botão de revelar. Telefone usa `maskPhone`; quem limpa
 para dígitos antes de enviar é o schema, com `onlyDigits`.
 
+### CI
+
+`.github/workflows/ci.yml` roda a cada push na `main` e a cada PR: typecheck, lint com warning
+como erro e `test:coverage` num job; `expo export` para iOS e Android em outro, o que prova que o
+bundle JS fecha sem build nativo; e `expo-doctor` num terceiro, que **não bloqueia** — ele reprova
+quando a Expo publica um patch novo, e isso não é defeito do código. O dependabot não propõe minor
+nem major de pacote do SDK (`expo*`, `react`, `react-native*`, `jest-expo`, `typescript`): esses
+sobem juntos, com `npx expo install --fix` na troca de SDK.
+
 ### Pendências conhecidas
 
 - **Login obrigatório na entrada, por decisão.** Trocar para o modelo iFood é mudar `Navigation`.
 - **Card depende de borda, não de contraste.** `bg-background` (`#FEFCFC`) e o `bg-white` do card
   diferem em 3 valores por canal; quem separa os dois é a `border-gray-200`.
 - **`Skeleton` não pulsa.** É um bloco cinza estático de propósito — ver a regra de design system.
-- **Não há teste automatizado.** O interceptor de 401 nunca foi exercitado.
+- **Não há E2E em aparelho.** A suíte cobre o app renderizado em Node, com os módulos nativos
+  mockados; gesto, animação, teclado, bottom sheet de verdade e push real ficam de fora. Seria
+  Maestro ou Detox, que exigem dev build.
 - **Busca só por nome de restaurante, por decisão.** Buscar por prato foi descartado; o
   `/discovery/search` segue na API sem consumidor no app.
 - **Complementos não existem.** A sheet do produto tem quantidade e observação; os grupos de opção
@@ -355,5 +411,8 @@ desencaminha a próxima pessoa.
 
 ## Idioma
 
-Código, nomes de arquivo e identificadores em **inglês**. Texto de UI e mensagens de commit em
-**português**.
+Código, nomes de arquivo e identificadores em **inglês**. Texto de UI em **português**.
+
+Commit **em inglês**, em Conventional Commits, numa linha só e com o verbo na terceira pessoa do
+presente — a mesma regra do dashboard: `feat: implements pix payment`, `fix: fixes zip code
+lookup`, `test: implements checkout feature tests`.

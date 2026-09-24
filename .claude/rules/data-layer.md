@@ -26,7 +26,11 @@ integrações de terceiros. Só isso — regra de tela não entra aqui.
 
 O Metro faz inline de `process.env.EXPO_PUBLIC_*` em build time, então a variável precisa ser lida
 por **referência estática** — desestruturar `process.env` devolve `undefined`. É por isso que
-`env.ts` escreve `process.env.EXPO_PUBLIC_API_URL` inteiro.
+`env.ts` monta o objeto que o Zod valida escrevendo cada `process.env.EXPO_PUBLIC_*` inteiro, em
+vez de passar `process.env` direto para o schema. Variável nova entra nos dois lugares: no schema e
+nesse objeto.
+
+Variável inválida ou ausente lança no carregamento do módulo, com o nome de cada uma na mensagem.
 
 O `queryClient` (`data/config/queryClient.ts`) é instanciado em escopo de módulo, não dentro do
 render: criá-lo dentro do `App` o recriaria a cada re-render e jogaria o cache fora.
@@ -142,7 +146,7 @@ o que fosse esquecido viraria tela quebrada.
 ### Atraso proposital em dev
 
 `EXPO_PUBLIC_REQUEST_DELAY_MS` atrasa toda request, para estado de carregando ficar visível o
-suficiente para ser conferido. Fica desligado por padrão (`0` no `.env.example`).
+suficiente para ser conferido. O `.env.example` traz `500`; `0` desliga.
 
 O interceptor de request que o aplica nasce com duas guardas: `__DEV__` no `env.ts`, que zera o
 valor fora de dev, e `__DEV__` no ponto de registro em `api.ts`. Uma guarda sozinha não basta: a do
