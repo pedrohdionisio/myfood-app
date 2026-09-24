@@ -64,15 +64,16 @@ Ligadas no `tsconfig.json`. Não são opinião, o build falha:
   `?.`; **não** resolva com `as T`.
 - `noUnusedLocals` / `noUnusedParameters` — variável ou parâmetro não usado é erro. O Biome repete
   isso como regra de lint.
-- `erasableSyntaxOnly` — **sem `enum`**, sem `namespace` com runtime, sem parameter properties. No
-  lugar de enum, union de literais com `as const`:
-
-  ```ts
-  export const ORDER_STATUS = ['placed', 'preparing', 'delivering', 'delivered'] as const;
-  export type OrderStatus = (typeof ORDER_STATUS)[number];
-  ```
-
 - `noFallthroughCasesInSwitch` — todo `case` fecha com `break` ou `return`.
+
+O `erasableSyntaxOnly` fica **desligado** no `tsconfig.json`, então o compilador não barra `enum`.
+Quem barra é o Biome (`style/noEnum`), e a regra vale igual: **sem `enum`**, sem `namespace` com
+runtime, sem parameter properties. No lugar de enum, union de literais com `as const`:
+
+```ts
+export const ORDER_STATUS = ['placed', 'preparing', 'delivering', 'delivered'] as const;
+export type OrderStatus = (typeof ORDER_STATUS)[number];
+```
 
 ## Funções
 

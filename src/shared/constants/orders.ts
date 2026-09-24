@@ -1,4 +1,4 @@
-export const ORDER_STATUSES = [
+const ORDER_STATUSES = [
 	'PENDING_PAYMENT',
 	'PENDING',
 	'CONFIRMED',
@@ -43,11 +43,11 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 	CARD_ON_DELIVERY: 'Cartão na entrega'
 };
 
-export const PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED', 'REFUNDED'] as const;
+const PAYMENT_STATUSES = ['PENDING', 'PAID', 'FAILED', 'REFUNDED'] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const PAYMENT_CHARGE_STATUSES = [
+const PAYMENT_CHARGE_STATUSES = [
 	'PENDING',
 	'PAID',
 	'EXPIRED',

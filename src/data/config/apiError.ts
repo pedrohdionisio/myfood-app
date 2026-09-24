@@ -1,6 +1,6 @@
 import { isAxiosError } from 'axios';
 
-export const API_ERROR_CODES = [
+const API_ERROR_CODES = [
 	'BAD_REQUEST',
 	'VALIDATION_ERROR',
 	'DOMAIN_ERROR',

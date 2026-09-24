@@ -107,8 +107,8 @@ liga isso (e já é o default do SDK 57).
 - Texto só via `AppText`; cor só via `className` ou `COLORS`. Nada de hex literal,
   `StyleSheet.create` ou tamanho de fonte fora da escala.
 - `axios`, `useQuery` e `useMutation` vivem exclusivamente em `src/data/`.
-- Sem `console.log`, sem `any`, sem `as` para calar o compilador, sem `enum`
-  (`erasableSyntaxOnly` está ligado e o build quebra).
+- Sem `console.log`, sem `any`, sem `as` para calar o compilador, sem `enum` (a regra `noEnum` do
+  Biome barra; o `erasableSyntaxOnly` fica desligado).
 - Não crie abstração antecipando requisito hipotético.
 
 ## Comentários

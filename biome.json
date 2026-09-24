@@ -45,6 +45,7 @@
         "noUnusedFunctionParameters": "error"
       },
       "style": {
+        "noEnum": "error",
         "noNonNullAssertion": "error",
         "useConst": "error",
         "useImportType": "error"

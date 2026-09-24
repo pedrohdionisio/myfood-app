@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { AuthService } from 'data/modules/auth/services/AuthService';
-import { AuthMutationKeys } from '../../keys/AuthKeys';
+import { AUTH_MUTATION_KEYS } from '../../keys/AuthKeys';
 
 export function useSignUp() {
 	const { mutateAsync, isPending } = useMutation({
-		mutationKey: [AuthMutationKeys.SIGN_UP],
+		mutationKey: [AUTH_MUTATION_KEYS.SIGN_UP],
 		mutationFn: AuthService.signUp
 	});
 
