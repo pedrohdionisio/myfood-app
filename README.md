@@ -98,8 +98,8 @@ flowchart LR
 
 ## Running locally
 
-Requirements: Node.js, Yarn 1, a running [myfood-api](https://github.com/pedrohdionisio/myfood-api),
-and Xcode or Android Studio: `yarn ios` and `yarn android` make a native build, which is what push
+Requirements: Node.js, Yarn 1, a [myfood-api](https://github.com/pedrohdionisio/myfood-api) stage to
+talk to, and Xcode or Android Studio: `yarn ios` and `yarn android` make a native build, which is what push
 notifications need.
 
 ```bash
@@ -110,7 +110,7 @@ yarn ios        # or: yarn android
 
 | Variable | What it is |
 |---|---|
-| `EXPO_PUBLIC_API_URL` | The API. On a physical device, use the machine's IP instead of `localhost`. |
+| `EXPO_PUBLIC_API_URL` | The API: the server on your machine (`pnpm dev` in myfood-api; on a physical device, use the machine's IP instead of `localhost`) or the deployed API on AWS Lambda, the `HttpApiUrl` output of the `myfood-api-dev` stack, which a physical device reaches from any network. |
 | `EXPO_PUBLIC_REQUEST_DELAY_MS` | Delays every request in development, to see loading states against a local API. `0` turns it off. |
 
 | Script | What it does |

@@ -64,7 +64,9 @@ nativos já mockados.
 
 `EXPO_PUBLIC_API_URL` é obrigatória: `data/config/env.ts` valida as variáveis com Zod e lança,
 nomeando cada uma, se alguma faltar ou vier inválida. Copie o
-`.env.example` para `.env`. Em device físico, troque `localhost` pelo IP da máquina.
+`.env.example` para `.env`. Ela aponta para a API local (`localhost`; em device físico, o IP da
+máquina) ou para a API deployada no stage `dev` da AWS (output `HttpApiUrl` do stack
+`myfood-api-dev`). Nada do app é publicado.
 
 `EXPO_PUBLIC_REQUEST_DELAY_MS` atrasa toda request de propósito, para dar tempo de ver skeleton e
 loading com a API local. Vale **só** em desenvolvimento (`env.ts` zera fora dele); `0` desliga.
